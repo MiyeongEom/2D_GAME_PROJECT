@@ -27,7 +27,6 @@ class Hero:
         self.y = 75
         self.stand_image = load_image('MC_Idle.png')
         self.walking_image = load_image('MC_Walking.PNG')
-        self.Attack01_image = load_image('MC_Attack01.png')
         # 592 102
 
     def update(self):
@@ -38,9 +37,9 @@ class Hero:
         self.frame = (self.frame + 1) % 6
 
         if self.dir == 1:
-            self.x += 20
+            self.x += 30
         elif self.dir == -1:
-            self.x -= 20
+            self.x -= 30
 
         if self.dir != 0 and self.plus_move < 15:
             self.plus_move += 1
