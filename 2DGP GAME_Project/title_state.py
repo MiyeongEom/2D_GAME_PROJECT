@@ -9,11 +9,6 @@ def enter():
     image = load_image('title.png')
     pass
 
-def exit():
-    global image
-    del image
-    pass
-
 def handle_events():
     events = get_events()
     for event in events:
@@ -24,6 +19,11 @@ def handle_events():
                 game_framework.quit()
             elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_SPACE):
                 game_framework.change_state(play_state)
+    pass
+
+def exit():
+    global image
+    del image
     pass
 
 def draw():
