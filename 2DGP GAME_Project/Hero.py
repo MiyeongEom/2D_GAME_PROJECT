@@ -1,6 +1,10 @@
 from pico2d import*
 
+import game_framework
+import game_world
+
 RD, LD, RU, LU = range(4)
+event_name =  ['RD', 'LD', 'RU', 'LU']
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT) : RD,
@@ -8,6 +12,10 @@ key_event_table = {
     (SDL_KEYUP, SDLK_RIGHT) : RU,
     (SDL_KEYUP, SDLK_LEFT) : LU,
 }
+
+TIME_PER_ACTION = 0.3
+ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 5
 
 class IDLE:
     @staticmethod
@@ -23,15 +31,15 @@ class IDLE:
 
     @staticmethod
     def do(self): #움직일 수 있도록 프레임 증가
-        self.frame = (self.frame + 1) % 6
+        self.frame = (self.frame + 2.5 * ACTION_PER_TIME * game_framework.frame_time) % 6
         pass
 
     @staticmethod
     def draw(self):
         if self.face_dir == 1: #오른쪽을 바라보고 있는 상태
-            self.Idle_image.clip_draw(int(self.frame) * 100, 0, 100, 100, self.x, self.y, 150, 150)
+            self.Idle_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 150, 150)
         else: #왼쪽
-            self.Idle_image.clip_composite_draw(int(self.frame) * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
+            self.Idle_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
         pass
 
 class RUN:
@@ -51,21 +59,27 @@ class RUN:
         self.face_dir = self.dir
 
     def do(self):
-        self.frame = (self.frame + 1) % 5
-        self.x += self.dir
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
+        self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
         self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
 
-    def draw(self):
+    def draw(self):  #int(boy.frame)
          if self.dir == 1:
-            self.RUN_image.clip_draw(self.frame*100, 0, 100, 100, self.x, self.y, 150, 150)
+            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 150, 150)
          elif self.dir == -1:
-            self.RUN_image.clip_composite_draw(int(self.frame) * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
+            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
 
 
 next_state = {
     IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN},
     RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE}
 }
+
+PIXEL_PER_METER = (10.0 / 0.3)
+RUN_SPEED_KPH = 30
+RUN_SPEED_MPM = RUN_SPEED_KPH * 1000.0 / 60
+RUN_SPEED_MPS = RUN_SPEED_MPM / 60.0
+RUN_SPEED_PPS = RUN_SPEED_MPS * PIXEL_PER_METER
 
 class Hero:
     def add_event(self, event):
@@ -93,7 +107,10 @@ class Hero:
         if self.q : #q에 뭔가 들어있다면,
             event = self.q.pop() # 이벤트를 가져오고
             self.cur_state.exit(self) #현재 상태를 나가고, self에 대한 정보는 전달해주고 ^^
-            self.cur_state = next_state[self.cur_state][event] #다음 상태를 계산
+            try:
+                self.cur_state = next_state[self.cur_state][event]
+            except KeyError:
+                print(f'ERROR: State {self.cur_state.__name__} Event {event_name[event]}')
             self.cur_state.enter(self, event)
 
     def draw(self):

@@ -1,13 +1,12 @@
 from pico2d import*
 import game_framework
-import title_state
-import logo_state
+import game_world
 
-from Stage_One import Stage_One
+from Stage_One import StageOne
 from Hero import Hero
 
 main_hero = None
-stage1 = None
+first_stage = None
 running = None
 
 def handle_events():
@@ -19,24 +18,26 @@ def handle_events():
             main_hero.handle_event(event)
 
 def enter():
-    global stage1, main_hero, running
-    stage1 = Stage_One()
-    main_hero = Hero()
+    global main_hero, running
     running = True
+    first_stage = StageOne()
+    main_hero = Hero()
+
+    game_world.add_object(first_stage, 0)
+    game_world.add_object(main_hero, 1)
 
 # 게임 종료 - 객체 소멸
 def exit():
-    global stage1, main_hero
-    del stage1
-    del main_hero
+    game_world.clear()
 
 #게임 객체 업데이트 - 게임 로직
 def update():
-    main_hero.update()
+    for game_object in game_world.all_objects():
+        game_object.update()
 
 def draw_world():
-    stage1.draw()
-    main_hero.draw()
+    for game_object in game_world.all_objects():
+        game_object.draw()
 
 def draw():
     clear_canvas()
