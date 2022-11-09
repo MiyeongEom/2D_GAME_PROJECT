@@ -3,14 +3,15 @@ from pico2d import*
 import game_framework
 import game_world
 
-RD, LD, RU, LU = range(4)
-event_name =  ['RD', 'LD', 'RU', 'LU']
+RD, LD, RU, LU, DJ = range(5)
+event_name =  ['RD', 'LD', 'RU', 'LU', 'DJ']
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT) : RD,
     (SDL_KEYDOWN, SDLK_LEFT) : LD,
     (SDL_KEYUP, SDLK_RIGHT) : RU,
     (SDL_KEYUP, SDLK_LEFT) : LU,
+    (SDL_KEYDOWN, SDLK_UP) : DJ
 }
 
 TIME_PER_ACTION = 0.3
@@ -25,8 +26,10 @@ class IDLE:
         pass
 
     @staticmethod
-    def exit(self):
+    def exit(self, event):
         print('EXIT RUN')
+        if event == DJ:
+            self.Jump()
         pass
 
     @staticmethod
@@ -53,10 +56,12 @@ class RUN:
         elif event == RU: self.dir -= 1
         elif event == LU: self.dir += 1
 
-    def exit(self):
+    def exit(self, event):
         print('ENTER EXIT')
         # run을 나가서 idle로 갈 때 run의 방향을 알려줄 필요가 있다.
         self.face_dir = self.dir
+        if event == DJ:
+            self.Jump()
 
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
@@ -71,8 +76,8 @@ class RUN:
 
 
 next_state = {
-    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN},
-    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE}
+    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DJ: IDLE},
+    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DJ: RUN}
 }
 
 PIXEL_PER_METER = (10.0 / 0.3)
@@ -91,11 +96,12 @@ class Hero:
             self.add_event(key_event) #변환된 내부 이벤트를 큐에 추가
 
     def __init__(self):
-        self.x, self.y = 0, 90
+        self.x, self.y = 40, 90
         self.frame = 0
         self.dir, self.face_dir = 0, 1
-        self.Idle_image = load_image('MC_Idle.png')
-        self.RUN_image = load_image('MC_Run.png')
+
+        self.Idle_image = load_image('Resource/MC_Idle.png')
+        self.RUN_image = load_image('Resource/MC_Run.png')
 
         self.q = []
         self.cur_state = IDLE
@@ -106,7 +112,7 @@ class Hero:
 
         if self.q : #q에 뭔가 들어있다면,
             event = self.q.pop() # 이벤트를 가져오고
-            self.cur_state.exit(self) #현재 상태를 나가고, self에 대한 정보는 전달해주고 ^^
+            self.cur_state.exit(self, event) #현재 상태를 나가고, self에 대한 정보는 전달해주고 ^^
             try:
                 self.cur_state = next_state[self.cur_state][event]
             except KeyError:
@@ -115,6 +121,10 @@ class Hero:
 
     def draw(self):
         self.cur_state.draw(self)
+
+    def Jump(self):
+        print('Jump')
+
 
 
 
