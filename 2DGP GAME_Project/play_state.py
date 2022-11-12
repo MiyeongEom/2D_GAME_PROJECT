@@ -2,12 +2,15 @@ from pico2d import*
 import game_framework
 import game_world
 
-from Stage_One import StageOne
+from StageOne import *
 from Hero import Hero
 
 main_hero = None
 first_stage = None
 running = None
+block1 = None
+block2 = None
+block3 = None
 
 def handle_events():
     events = get_events()
@@ -19,12 +22,20 @@ def handle_events():
 
 def enter():
     global main_hero, running
+    global block1, block2, block3
+
     running = True
     first_stage = StageOne()
     main_hero = Hero()
+    block1 = Block()
+    block2 = Block2()
+    block3 = Block3()
 
     game_world.add_object(first_stage, 0)
-    game_world.add_object(main_hero, 1)
+    game_world.add_object(block1, 1)
+    game_world.add_object(block2, 1)
+    game_world.add_object(block3, 1)
+    game_world.add_object(main_hero, 2)
 
 # 게임 종료 - 객체 소멸
 def exit():
@@ -53,7 +64,7 @@ def resume():
 def test_self():
     import play_state
 
-    pico2d.open_canvas(1300, 600)
+    pico2d.open_canvas(1200, 600)
     game_framework.run(play_state)
     pico2d.clear_canvas()
 

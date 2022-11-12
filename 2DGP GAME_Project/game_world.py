@@ -1,4 +1,8 @@
-objects = [[], []]  #2d에선 그리는 순서가 중요함 -> 이중리스트
+# 1 background
+# 2 block
+# 3 main_hero
+
+objects = [[], [], []]  #2d에선 그리는 순서가 중요함 -> 이중리스트
 
 def add_object(o, depth):
     objects[depth].append(o)
