@@ -3,24 +3,35 @@ from pico2d import*
 import game_framework
 import game_world
 
-RD, LD, RU, LU, DJ = range(5)
-event_name =  ['RD', 'LD', 'RU', 'LU', 'DJ']
+RD, LD, RU, LU = range(4)
+event_name =  ['RD', 'LD', 'RU', 'LU']
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT) : RD,
     (SDL_KEYDOWN, SDLK_LEFT) : LD,
     (SDL_KEYUP, SDLK_RIGHT) : RU,
     (SDL_KEYUP, SDLK_LEFT) : LU,
-    (SDL_KEYDOWN, SDLK_UP) : DJ
 }
 
 TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
+VELOCITY = 130
+MASS = 0.005
+
+def Set_Speed(time_per_action, frames_per_action):
+    global FRAMES_PER_ACTION
+    global TIME_PER_ACTION
+    global ACTION_PER_TIME
+    TIME_PER_ACTION = time_per_action
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = frames_per_action
+
 
 class IDLE:
     @staticmethod
     def enter(self, event):
+        Set_Speed(1, 6)
         print('ENTER IDLE')
         self.dir = 0
         pass
@@ -28,13 +39,12 @@ class IDLE:
     @staticmethod
     def exit(self, event):
         print('EXIT RUN')
-        if event == DJ:
-            self.Jump()
         pass
 
     @staticmethod
     def do(self): #움직일 수 있도록 프레임 증가
         self.frame = (self.frame + 2.5 * ACTION_PER_TIME * game_framework.frame_time) % 6
+        self.jump()
         pass
 
     @staticmethod
@@ -47,6 +57,7 @@ class IDLE:
 
 class RUN:
     def enter(self, event):
+        Set_Speed(0.5, 6)
         print('ENTER RUN')
         # self.dir을 결정해야 함.
         # 왜? : 아이들에서 런 상태가 되었을 때 아이들에서 나올 떄 왼쪽키를 눌렀는지 혹은 오른쪽 키를 눌렀는지에 의해 판단됨
@@ -60,13 +71,12 @@ class RUN:
         print('ENTER EXIT')
         # run을 나가서 idle로 갈 때 run의 방향을 알려줄 필요가 있다.
         self.face_dir = self.dir
-        if event == DJ:
-            self.Jump()
 
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
         self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
+        self.jump()
 
     def draw(self):  #int(boy.frame)
          if self.dir == 1:
@@ -74,10 +84,9 @@ class RUN:
          elif self.dir == -1:
             self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
 
-
 next_state = {
-    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DJ: IDLE},
-    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DJ: RUN}
+    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN},
+    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE}
 }
 
 PIXEL_PER_METER = (10.0 / 0.3)
@@ -90,18 +99,16 @@ class Hero:
     def add_event(self, event):
         self.q.insert(0, event)
 
-    def handle_event(self, event):  # 주인공이 스스로 이벤트를 처리할 수 있게
-        if (event.type, event.key) in key_event_table:
-            key_event = key_event_table[(event.type, event.key)]
-            self.add_event(key_event) #변환된 내부 이벤트를 큐에 추가
-
     def __init__(self):
         self.x, self.y = 40, 90
+        self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.dir, self.face_dir = 0, 1
+        self.isJump = 0
 
         self.Idle_image = load_image('Resource/MC_Idle.png')
         self.RUN_image = load_image('Resource/MC_Run.png')
+        self.Jump_image = load_image('resource/MC_JUMP.png')
 
         self.q = []
         self.cur_state = IDLE
@@ -122,10 +129,28 @@ class Hero:
     def draw(self):
         self.cur_state.draw(self)
 
-    def Jump(self):
-        print('Jump')
+    def jump(self):
+        if self.isJump == 1:
+            if self.v > 0:
+                F = ((RUN_SPEED_PPS * game_framework.frame_time / 20) * self.m * (self.v ** 2))
+            else:
+                F = -((RUN_SPEED_PPS * game_framework.frame_time / 40) * self.m * (self.v ** 2))
 
+            self.y += round(F)
+            self.v -= 1
 
+            if self.y < 90:
+                self.y = 90
+                self.v = VELOCITY
+                self.isJump = 0
+
+    def handle_event(self, event):  # 주인공이 스스로 이벤트를 처리할 수 있게
+        if (event.type, event.key) in key_event_table:
+            key_event = key_event_table[(event.type, event.key)]
+            self.add_event(key_event)  # 변환된 내부 이벤트를 큐에 추가
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
+            if self.isJump == 0:
+                   self.isJump = 1
 
 
 
