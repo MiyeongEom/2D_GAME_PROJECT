@@ -5,7 +5,7 @@ GAME_Y = 600
 
 class StageOne:
     def __init__(self):
-        self.stage1 = load_image('Resource/stage1_background.png')
+        self.stage1 = load_image('Resource/StageOne/stage1_background.png')
 
     def draw(self):
         self.stage1.draw(GAME_X//2, GAME_Y//2)
@@ -15,7 +15,7 @@ class StageOne:
 
 class Block:
     def __init__(self):
-        self.block = load_image('Resource/Block1.png')
+        self.block = load_image('Resource/StageOne/Block1.png')
 
     def draw(self):
         self.block.draw(200, 230, 194.4, 48)
@@ -29,7 +29,7 @@ class Block:
 
 class Block2:
     def __init__(self):
-        self.block = load_image('Resource/Block2.png')
+        self.block = load_image('Resource/StageOne/Block2.png')
 
     def draw(self):
         self.block.draw(410, 330, 55, 54)
@@ -42,7 +42,7 @@ class Block2:
 
 class Block3:
     def __init__(self):
-        self.block = load_image('Resource/Block3.png')
+        self.block = load_image('Resource/StageOne/Block3.png')
 
     def draw(self):
 

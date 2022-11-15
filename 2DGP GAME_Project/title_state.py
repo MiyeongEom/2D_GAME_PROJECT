@@ -6,7 +6,7 @@ image = None
 
 def enter():
     global image
-    image = load_image('Resource/title.png')
+    image = load_image('Resource/Logo&Title/title.png')
     pass
 
 def handle_events():
