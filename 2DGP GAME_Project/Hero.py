@@ -4,7 +4,7 @@ import game_framework
 import game_world
 
 RD, LD, RU, LU, DD, DQ, DW, DE = range(8)
-event_name =  ['RD', 'LD', 'RU', 'LU', 'DD', 'UQ', 'DW', 'DE']
+event_name =  ['RD', 'LD', 'RU', 'LU', 'DD', 'DQ', 'DW', 'DE']
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT) : RD,
@@ -43,8 +43,6 @@ class IDLE:
     @staticmethod
     def exit(self, event):
         print('EXIT RUN')
-        if event == DQ:
-            Hero.attack_q(self)
         pass
 
     @staticmethod
@@ -77,8 +75,6 @@ class RUN:
         print('EXIT EXIT')
         # run을 나가서 idle로 갈 때 run의 방향을 알려줄 필요가 있다.
         self.face_dir = self.dir
-        if event == DQ:
-            Hero.attack_q(self)
 
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
@@ -116,11 +112,38 @@ class Roll:
          elif self.dir == -1:
             self.Roll_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
 
+class Attack:
+    def enter(self, event):
+        Set_Speed(0.5, 6)
+        print('ENTER Attack')
+        if event == DQ :
+            self.skill = 1
+        elif event == DW :
+            self.skill = 2
+        elif event == DE :
+            self.skill = 3
+
+    def exit(self, event):
+        print('EXIT Attack')
+        self.face_dir = self.dir
+
+    def do(self):
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
+
+        self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
+
+    def draw(self):  #int(boy.frame)
+         if self.dir == 1:
+            self.Roll_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+         elif self.dir == -1:
+            self.Roll_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
+
 
 next_state = {
-    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DD: IDLE, DQ: IDLE},
-    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: RUN},
+    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DD: IDLE, DQ: Attack},
+    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: Attack},
     Roll: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: Roll},
+    Attack: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: Attack}
 }
 
 PIXEL_PER_METER = (10.0 / 0.3)
@@ -143,10 +166,10 @@ class Hero:
         self.damage = 0
         self.skill_time = 0
 
-        self.Idle_image = load_image('Resource/MC_Idle.png')
-        self.RUN_image = load_image('Resource/MC_Run.png')
-        self.Roll_image = load_image('resource/MC_Roll.png')
-        self.AttackQ_image = load_image('resource/MC_AttackQ.png')
+        self.Idle_image = load_image('Resource/MC/MC_Idle.png')
+        self.RUN_image = load_image('Resource/MC/MC_Run.png')
+        self.Roll_image = load_image('resource/MC/MC_Roll.png')
+        self.AttackQ_image = load_image('resource/MC/MC_AttackQ.png')
 
         self.q = []
         self.cur_state = IDLE
@@ -164,14 +187,7 @@ class Hero:
             self.cur_state.enter(self, event)
 
     def draw(self):
-        if self.skill == 1:
-            if self.dir == 1:
-                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-            elif self.dir == -1:
-                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
-                                                       190, 190)
-        elif self.skill == 0:
-            self.cur_state.draw(self)
+        self.cur_state.draw(self)
 
     def jump(self):
         if self.isJump == 1:
@@ -187,15 +203,6 @@ class Hero:
                 self.y = 90
                 self.v = VELOCITY
                 self.isJump = 0
-
-    def attack_q(self):
-        print('attack!!')
-        self.skill = 1
-        self.skill_time += 1
-
-        if self.skill_time == 2:
-            self.skill = 0
-            self.skill_time = 0
 
 
     def handle_event(self, event):  # 주인공이 스스로 이벤트를 처리할 수 있게
