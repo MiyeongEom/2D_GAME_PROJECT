@@ -1,13 +1,20 @@
+import random
+import json
+import os
+
 from pico2d import*
 import game_framework
 import game_world
 
 from StageOne import *
 from Hero import Hero
+from StageOne_Monster import Adj
+
 
 main_hero = None
 first_stage = None
 running = None
+adj_monster = None
 
 def handle_events():
     events = get_events()
@@ -18,40 +25,43 @@ def handle_events():
             main_hero.handle_event(event)
 
 def enter():
-    global main_hero, running
+    global main_hero, adj_monster, running
     global blocks_basic, tree_cube
 
     running = True
     first_stage = StageOne()
     main_hero = Hero()
+    adj_monster = Adj(90, 303)
 
 # (130, 240), (410, 140), (900, 300)
     block01 = Block1(130, 240)
-    block02 = Block1(410, 140)
-    block03 = Block1(900, 300)
+    block02 = Block1(350, 140)
+    block03 = Block1(850, 200)
+    block04 = Block1(1100, 300)
 
-    blocks_basic = [block01, block02, block03]
+    blocks_basic = [block01, block02, block03, block04]
 
 # (410, 330), (540, 330), (670, 300)
-    block20 = Block2(410, 330)
-    block21 = Block2(540, 330)
-    block22 = Block2(670, 300)
+    block20 = Block2(350, 330)
+    block21 = Block2(480, 330)
+    block22 = Block2(610, 300)
 
     tree_cube = [block20, block21, block22]
 
 # (750, 60), (750, 100), (750, 140), (750, 180), (750, 220)
 
-    block40 = Block3(750, 60)
-    block41 = Block3(750, 100)
-    block42 = Block3(750, 140)
-    block43 = Block3(750, 180)
-    block44 = Block3(750, 220)
+    block40 = Block3(690, 60)
+    block41 = Block3(690, 100)
+    block42 = Block3(690, 140)
+    block43 = Block3(690, 180)
+    block44 = Block3(690, 220)
 
     stone = [block40, block41, block42, block43, block44]
 ########################################
 
     game_world.add_object(first_stage, 0)
     game_world.add_object(main_hero, 2)
+    game_world.add_object(adj_monster, 2)
 
     game_world.add_objects(blocks_basic, 1)
     game_world.add_objects(tree_cube, 1)

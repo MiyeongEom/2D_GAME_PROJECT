@@ -161,17 +161,19 @@ class Hero:
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.dir, self.face_dir = 0, 1
+
         self.isJump = 0
+        self.jump_high = 100
+
         self.skill  = 0   # 1 : q , 2: w, 3: e
         self.damage = 0
         self.skill_time = 0
-        self.jump_high = 90
 
         self.Idle_image = load_image('Resource/MC/MC_Idle.png')
         self.RUN_image = load_image('Resource/MC/MC_Run.png')
-        self.Roll_image = load_image('resource/MC/MC_Roll.png')
-        self.Jump_image = load_image('resource/MC/MC_JUMP.png')
-        self.AttackQ_image = load_image('resource/MC/MC_AttackQ.png')
+        self.Roll_image = load_image('Resource/MC/MC_Roll.png')
+        self.Jump_image = load_image('Resource/MC/MC_JUMP.png')
+        self.AttackQ_image = load_image('Resource/MC/MC_AttackQ.png')
 
         self.q = []
         self.cur_state = IDLE
@@ -218,12 +220,6 @@ class Hero:
                 self.cur_state.exit(self, event)
                 self.isJump = 1
 
-    def Stop(self):
-        if self.face_dir == 1:
-            self.dir -= 1
-        elif self.face_dir == -1:
-            self.dir += 1
-
     def get_bb(self):
         if self.cur_state == RUN:
             if self.dir == 1:
@@ -245,5 +241,4 @@ class Hero:
 
     def handle_collision(self, other, group):
         if group == 'block_basic:main_hero':
-            Hero.Stop(self)
             pass
