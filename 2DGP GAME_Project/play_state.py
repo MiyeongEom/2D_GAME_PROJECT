@@ -8,7 +8,7 @@ import game_world
 
 from StageOne import *
 from Hero import Hero
-from StageOne_Monster import Adj
+from StageOne_Monster import *
 
 
 main_hero = None
@@ -31,7 +31,9 @@ def enter():
     running = True
     first_stage = StageOne()
     main_hero = Hero()
-    adj_monster = Adj(90, 303)
+    adj_monster = Frog(600, 80)
+    King_monster = King_Frog(90, 305)
+    Mon_Monster = Monster(1150, 370)
 
 # (130, 240), (410, 140), (900, 300)
     block01 = Block1(130, 240)
@@ -62,6 +64,8 @@ def enter():
     game_world.add_object(first_stage, 0)
     game_world.add_object(main_hero, 2)
     game_world.add_object(adj_monster, 2)
+    game_world.add_object(King_monster, 2)
+    game_world.add_object(Mon_Monster, 2)
 
     game_world.add_objects(blocks_basic, 1)
     game_world.add_objects(tree_cube, 1)
