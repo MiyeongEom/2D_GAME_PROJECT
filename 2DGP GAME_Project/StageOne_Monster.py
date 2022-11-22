@@ -5,11 +5,14 @@ from pico2d import *
 import math
 import server
 
-# zombie Run Speed
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 4
+
 
 #개굴
-Frog_SPEED_KMPH = 10.0  # Km / Hour
+Frog_SPEED_KMPH = 8.0  # Km / Hour
 Frog_SPEED_MPM = (Frog_SPEED_KMPH * 1000.0 / 60.0)
 Frog_SPEED_MPS = (Frog_SPEED_MPM / 60.0)
 Frog_SPEED_PPS = (Frog_SPEED_MPS * PIXEL_PER_METER)
@@ -20,15 +23,11 @@ KING_SPEED_MPM = (KING_SPEED_KMPH * 1000.0 / 60.0)
 KING_SPEED_MPS = (KING_SPEED_MPM / 60.0)
 KING_SPEED_PPS = (KING_SPEED_MPS * PIXEL_PER_METER)
 
-# zombie Action Speed
-TIME_PER_ACTION = 0.5
-ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-FRAMES_PER_ACTION = 4
-
-Monster_SPEED_KMPH = 10.0  # Km / Hour
-Monster_SPEED_MPM = (KING_SPEED_KMPH * 1000.0 / 60.0)
-Monster_SPEED_MPS = (KING_SPEED_MPM / 60.0)
-Monster_SPEED_PPS = (KING_SPEED_MPS * PIXEL_PER_METER)
+#monster
+Monster_SPEED_KMPH = 6.0  # Km / Hour
+Monster_SPEED_MPM = (Monster_SPEED_KMPH * 1000.0 / 60.0)
+Monster_SPEED_MPS = (Monster_SPEED_MPM / 60.0)
+Monster_SPEED_PPS = (Monster_SPEED_MPS * PIXEL_PER_METER)
 
 class Frog:
     image = None
@@ -50,11 +49,12 @@ class Frog:
         self.speed = Frog_SPEED_PPS
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
-        # self.x += self.speed * game_framework.frame_time
-        # if self.x < self.ax + 50 :  #초기값보다 이동값이 더 클 때
-        #     self.x += self.speed * game_framework.frame_time
-        # elif self.x >= self.ax - 50:
-        #     self.x -= self.speed * game_framework.frame_time
+        if self.x < self.ax + 50 :  #초기값보다 이동값이 더 클 때
+            self.x += self.speed * game_framework.frame_time
+        elif self.x > self.ax + 50 :
+            self.x -= self.speed * game_framework.frame_time
+        elif self.x <= self.ax - 50:
+            self.x += self.speed * game_framework.frame_time
         pass
 
 

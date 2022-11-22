@@ -2,8 +2,8 @@ from pico2d import*
 import game_framework
 import game_world
 
-RD, LD, RU, LU, DD, DQ, DW, DE = range(8)
-event_name =  ['RD', 'LD', 'RU', 'LU', 'DD', 'DQ', 'DW', 'DE']
+RD, LD, RU, LU, DD = range(5)
+event_name =  ['RD', 'LD', 'RU', 'LU', 'DD']
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT) : RD,
@@ -13,10 +13,9 @@ key_event_table = {
 
     (SDL_KEYDOWN, SDLK_DOWN) : DD, #구르기
 
-    (SDL_KEYDOWN, SDLK_q) : DQ,
-    (SDL_KEYDOWN, SDLK_w) : DW,
-    (SDL_KEYDOWN, SDLK_e) : DE,
-
+    #(SDL_KEYDOWN, SDLK_q) : DQ,
+    #(SDL_KEYDOWN, SDLK_w) : DW,
+    #(SDL_KEYDOWN, SDLK_e) : DE
 }
 
 TIME_PER_ACTION = 0.3
@@ -24,6 +23,14 @@ ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
 VELOCITY = 135
 MASS = 0.005
+
+TIME_PER_ATTACK = 0.3
+ATTACK_PER_TIME = 0.9 / TIME_PER_ATTACK
+FRAMES_PER_ATTACK = 5
+
+TIME_PER_DEFEND = 2
+DEFEND_PER_TIME = 2 / TIME_PER_DEFEND
+FRAMES_PER_DEFEND = 1
 
 def Set_Speed(time_per_action, frames_per_action):
     global FRAMES_PER_ACTION
@@ -45,12 +52,17 @@ class IDLE:
     @staticmethod
     def exit(self, event):
         print('EXIT RUN')
+
         pass
 
     @staticmethod
     def do(self): #움직일 수 있도록 프레임 증가
-        self.frame = (self.frame + 2.5 * ACTION_PER_TIME * game_framework.frame_time) % 6
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
         self.jump()
+        self.attackq()
+        self.attackw()
+        self.attacke()
+        self.defend()
         pass
 
     @staticmethod
@@ -75,11 +87,16 @@ class RUN:
         print('EXIT EXIT')
         self.face_dir = self.dir
 
+
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
         self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
         self.jump()
+        self.attackq()
+        self.attackw()
+        self.attacke()
+        self.defend()
 
     def draw(self):  #int(boy.frame)
          if self.dir == 1:
@@ -101,6 +118,7 @@ class Roll:
         # run을 나가서 idle로 갈 때 run의 방향을 알려줄 필요가 있다.
         self.face_dir = self.dir
 
+
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
@@ -112,38 +130,11 @@ class Roll:
          elif self.dir == -1:
             self.Roll_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
 
-class Attack:
-    def enter(self, event):
-        Set_Speed(0.5, 6)
-        print('ENTER Attack')
-        if event == DQ :
-            self.skill = 1
-        elif event == DW :
-            self.skill = 2
-        elif event == DE :
-            self.skill = 3
-
-    def exit(self, event):
-        print('EXIT Attack')
-        self.face_dir = self.dir
-
-    def do(self):
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
-
-        self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
-
-    def draw(self):  #int(boy.frame)
-         if self.dir == 1:
-            self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-         elif self.dir == -1:
-            self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
-
 
 next_state = {
-    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DD: IDLE, DQ: Attack},
-    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: Attack},
-    Roll: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: Roll},
-    Attack: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll, DQ: Attack}
+    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DD: IDLE},
+    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll},
+    Roll: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DD: Roll}
 }
 
 PIXEL_PER_METER = (10.0 / 0.3)
@@ -157,7 +148,7 @@ class Hero:
         self.q.insert(0, event)
 
     def __init__(self):
-        self.x, self.y = 40, 83
+        self.x, self.y = 40, 90
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.dir, self.face_dir = 0, 1
@@ -165,15 +156,21 @@ class Hero:
         self.isJump = 0
         self.jump_high = 100
 
-        self.skill  = 0   # 1 : q , 2: w, 3: e
+        self.attacking = False
+        self.skill  = 0   # 1 : q, 2: w, 3: e
         self.damage = 0
         self.skill_time = 0
+        self.skill_q = 3
+        self.skill_reset = 2
 
         self.Idle_image = load_image('Resource/MC/MC_Idle.png')
         self.RUN_image = load_image('Resource/MC/MC_Run.png')
         self.Roll_image = load_image('Resource/MC/MC_Roll.png')
         self.Jump_image = load_image('Resource/MC/MC_JUMP.png')
         self.AttackQ_image = load_image('Resource/MC/MC_AttackQ.png')
+        self.AttackW_image = load_image('Resource/MC/MC_AttackW.png')
+        self.AttackE_image = load_image('Resource/MC/MC_AttackE.png')
+        self.Defend_image = load_image('Resource/MC/MC_Defend.png')
 
         self.q = []
         self.cur_state = IDLE
@@ -190,10 +187,77 @@ class Hero:
                 print(f'ERROR: State {self.cur_state.__name__} Event {event_name[event]}')
             self.cur_state.enter(self, event)
 
-    def draw(self):
-        self.cur_state.draw(self)
-        draw_rectangle(*self.get_bb())
+        if self.skill == 1:
+            self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
 
+        elif self.skill == 2:
+            self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+
+        elif self.skill == 3:
+            self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+
+        elif self.skill == 4:
+            self.frame =  (self.frame + FRAMES_PER_DEFEND * DEFEND_PER_TIME * 2) % 12
+
+    def draw(self):
+        if self.skill == 1:
+            if self.dir == 1:
+                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+            elif self.dir == -1:
+                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
+                                                    190)
+            elif self.face_dir == 1:
+                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+
+            elif self.face_dir == -1:
+                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
+                                                    190)
+        elif self.skill == 2:
+            if self.dir == 1:
+                self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+            elif self.dir == -1:
+                self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
+                                                    190)
+            elif self.face_dir == 1:
+                self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+
+            elif self.face_dir == -1:
+                self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
+                                                    190)
+
+        elif self.skill == 3:
+            if self.dir == 1:
+                self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+            elif self.dir == -1:
+                self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                                                       190,
+                                                       190)
+            elif self.face_dir == 1:
+                self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+
+            elif self.face_dir == -1:
+                self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                                                       190,
+                                                       190)
+
+        elif self.skill == 4:
+            if self.dir == 1:
+                self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+            elif self.dir == -1:
+                self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                                                       190,
+                                                       190)
+            elif self.face_dir == 1:
+                self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+
+            elif self.face_dir == -1:
+                self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                                                       190,
+                                                       190)
+        elif self.skill == 0:
+            self.cur_state.draw(self)
+
+        draw_rectangle(*self.get_bb())
 
     def jump(self):
         if self.isJump == 1:
@@ -215,10 +279,82 @@ class Hero:
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)  # 변환된 내부 이벤트를 큐에 추가
-        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
+
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
             if self.isJump == 0:
                 self.cur_state.exit(self, event)
+                self.skill = 0
                 self.isJump = 1
+
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_q):
+            if self.skill == 0:
+                self.cur_state.exit(self, event)
+                self.skill = 1
+
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_w):
+            if self.skill == 0:
+                self.cur_state.exit(self, event)
+                self.skill = 2
+
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_e):
+            if self.skill == 0:
+                self.cur_state.exit(self, event)
+                self.skill = 3
+
+        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_d):
+            if self.skill == 0:
+                self.cur_state.exit(self, event)
+                self.skill = 4
+
+
+    def attackq(self):
+        if self.skill == 1:
+            self.attacking = True
+            self.skill_time += 1
+            self.skill_reset -= 1
+
+            if self.skill_time == 140:
+                self.attacking = False
+                self.skill = 0
+                self.skill_time = 0
+                self.skill_reset = 2
+
+    def attackw(self):
+        if self.skill == 2:
+            self.attacking = True
+            self.skill_time += 1
+            self.skill_reset -= 1
+
+            if self.skill_time == 160:
+                self.attacking = False
+                self.skill = 0
+                self.skill_time = 0
+                self.skill_reset = 2
+
+    def attacke(self):
+        if self.skill == 3:
+            self.attacking = True
+            self.skill_time += 1
+            self.skill_reset -= 1
+
+            if self.skill_time == 160:
+                self.attacking = False
+                self.skill = 0
+                self.skill_time = 0
+                self.skill_reset = 3
+
+    def defend(self):
+        if self.skill == 4:
+            self.attacking = True
+            self.skill_time += 1
+            self.skill_reset -= 1
+
+            if self.skill_time == 800:  #2초
+                self.attacking = False
+                self.skill = 0
+                self.skill_time = 0
+                self.skill_reset = 2
+
 
     def get_bb(self):
         if self.cur_state == RUN:
