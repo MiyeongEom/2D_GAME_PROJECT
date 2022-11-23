@@ -31,13 +31,13 @@ def enter():
     running = True
     first_stage = StageOne()
     main_hero = Hero()
-    adj_monster = Frog(600, 80)
+    adj_monster = Frog(570, 80)
     King_monster = King_Frog(90, 305)
     Mon_Monster = Monster(1150, 370)
 
 # (130, 240), (410, 140), (900, 300)
     block01 = Block1(130, 240)
-    block02 = Block1(350, 140)
+    block02 = Block1(310, 140)
     block03 = Block1(850, 200)
     block04 = Block1(1100, 300)
 
@@ -73,7 +73,7 @@ def enter():
 
 ########################################
 
-    game_world.add_collision_group(blocks_basic, main_hero, 'block_basic:main_hero')
+    game_world.add_collision_group(blocks_basic, main_hero, 'blocks_basic:main_hero')
     game_world.add_collision_group(tree_cube, main_hero, 'tree_node:main_hero')
     game_world.add_collision_group(stone, main_hero, 'stone:main_hero')
 
@@ -92,6 +92,8 @@ def update():
             print('COLLISION by', group)
             a.handle_collision(b, group)
             b.handle_collision(a, group)
+
+
 
 def draw_world():
     for game_object in game_world.all_objects():

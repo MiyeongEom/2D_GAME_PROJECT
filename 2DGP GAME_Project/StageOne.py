@@ -24,8 +24,10 @@ class Block1:
         if Block1.image == None:
             Block1.image = load_image('Resource/StageOne/Block1.png')
 
-        self.x, self.y = x, y
-        self.w, self.h = 194.4, 48
+        self.x = x
+        self.y = y
+        self.w  = 194.4
+        self.h = 48
 
     def draw(self):
         # 200 240 194.4 48
@@ -39,8 +41,9 @@ class Block1:
         return self.x - 97, self.y - 27, self.x + 95, self.y + 23
 
     def handle_collision(self, other, group):
-        if group == 'block_basic:main_hero':
+        if group == 'blocks_basic:main_hero':
             pass
+
 
 #(410, 330), (540, 330), (670, 300)
 class Block2:
@@ -64,7 +67,7 @@ class Block2:
 
     def handle_collision(self, other, group):
         if group == 'block2:main_hero':
-            print('hi hero')
+            pass
 
 
 #(750, 60), (750, 100), (750, 140), (750, 180), (750, 220)

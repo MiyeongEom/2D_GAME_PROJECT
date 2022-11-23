@@ -1,5 +1,6 @@
 from pico2d import*
 import game_framework
+import StageOne
 import game_world
 
 RD, LD, RU, LU, DD = range(5)
@@ -21,12 +22,12 @@ key_event_table = {
 TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
-VELOCITY = 135
-MASS = 0.005
+VELOCITY = 123
+MASS = 0.004
 
 TIME_PER_ATTACK = 0.3
-ATTACK_PER_TIME = 0.9 / TIME_PER_ATTACK
-FRAMES_PER_ATTACK = 5
+ATTACK_PER_TIME = 0.6 / TIME_PER_ATTACK
+FRAMES_PER_ATTACK = 6
 
 TIME_PER_DEFEND = 2
 DEFEND_PER_TIME = 2 / TIME_PER_DEFEND
@@ -148,7 +149,8 @@ class Hero:
         self.q.insert(0, event)
 
     def __init__(self):
-        self.x, self.y = 40, 90
+        self.x = 40
+        self.y = 90
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.dir, self.face_dir = 0, 1
@@ -256,24 +258,24 @@ class Hero:
                                                        190)
         elif self.skill == 0:
             self.cur_state.draw(self)
-
+            draw_rectangle(*self.get_bb())
         draw_rectangle(*self.get_bb())
 
     def jump(self):
+        jump_value = 0.00349923324584
         if self.isJump == 1:
             if self.v > 0:
-                F = ((RUN_SPEED_PPS * game_framework.frame_time / 20) * self.m * (self.v ** 2))
+                F = ((RUN_SPEED_PPS * jump_value / 20) * self.m * (self.v ** 2))
             else:
-                F = -((RUN_SPEED_PPS * game_framework.frame_time / 40) * self.m * (self.v ** 2))
-
+                F = -((RUN_SPEED_PPS * jump_value / 40) * self.m * (self.v ** 2))
             self.y += round(F)
             self.v -= 1
 
             if self.y < self.jump_high:
                 self.y = self.jump_high
                 self.v = VELOCITY
+                self.m = MASS
                 self.isJump = 0
-
 
     def handle_event(self, event):  # 주인공이 스스로 이벤트를 처리할 수 있게
         if (event.type, event.key) in key_event_table:
@@ -306,14 +308,13 @@ class Hero:
                 self.cur_state.exit(self, event)
                 self.skill = 4
 
-
     def attackq(self):
         if self.skill == 1:
             self.attacking = True
             self.skill_time += 1
             self.skill_reset -= 1
 
-            if self.skill_time == 140:
+            if self.skill_time == 120:
                 self.attacking = False
                 self.skill = 0
                 self.skill_time = 0
@@ -325,7 +326,7 @@ class Hero:
             self.skill_time += 1
             self.skill_reset -= 1
 
-            if self.skill_time == 160:
+            if self.skill_time == 140:
                 self.attacking = False
                 self.skill = 0
                 self.skill_time = 0
@@ -337,7 +338,7 @@ class Hero:
             self.skill_time += 1
             self.skill_reset -= 1
 
-            if self.skill_time == 160:
+            if self.skill_time == 100:
                 self.attacking = False
                 self.skill = 0
                 self.skill_time = 0
@@ -355,13 +356,12 @@ class Hero:
                 self.skill_time = 0
                 self.skill_reset = 2
 
-
     def get_bb(self):
         if self.cur_state == RUN:
             if self.dir == 1:
-                return self.x - 45, self.y - 50, self.x + 35, self.y + 43
+                return self.x - 45, self.y - 48, self.x + 35, self.y + 43
             elif self.dir == -1:
-                return self.x - 35, self.y - 50, self.x + 45, self.y + 43
+                return self.x - 35, self.y - 48, self.x + 45, self.y + 43
 
         elif self.cur_state == Roll:
             if self.dir == 1:
@@ -376,5 +376,7 @@ class Hero:
                 return self.x - 25, self.y - 53, self.x + 36, self.y + 37
 
     def handle_collision(self, other, group):
-        if group == 'block_basic:main_hero':
+        if group == 'blocks_basic:main_hero':
+            print(Hero.get_bb(self))
+
             pass
