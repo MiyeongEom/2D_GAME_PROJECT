@@ -365,9 +365,9 @@ class Hero:
 
         elif self.cur_state == Roll:
             if self.dir == 1:
-                return self.x - 40, self.y - 60, self.x + 30, self.y + 15
+                return self.x - 40, self.y - 60, self.x + 30, self.y + 10
             elif self.dir == -1:
-                return self.x - 35, self.y - 60, self.x + 40, self.y + 15
+                return self.x - 35, self.y - 60, self.x + 40, self.y + 10
 
         else:
             if self.face_dir == 1:

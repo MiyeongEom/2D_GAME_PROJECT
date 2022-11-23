@@ -65,7 +65,7 @@ class Frog:
             self.image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 120,
                                                 120)
         elif self.face_dir == -1:  # 왼쪽
-            self.image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 120,120)
+            self.image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 110,110)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
@@ -83,7 +83,7 @@ class King_Frog:
 
     def __init__(self, x, y):
         if King_Frog.image == None:
-            King_Frog.image = load_image('Resource/MON/King_Frog/King_Idle.png')
+            King_Frog.image = load_image('Resource/MON/King_Frog/King_Walk.png')
         self.x, self.y = x, y
         self.ax, self.ay = x, y
         self.frame = 0
@@ -110,10 +110,10 @@ class King_Frog:
 
     def draw(self):
         if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
-            self.image.clip_composite_draw(int(self.frame) % 4 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 120,
+            self.image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 120,
                                                 120)
         else:  # 왼쪽
-            self.image.clip_draw(int(self.frame) % 4 * 100, 0, 100, 100, self.x, self.y, 120,120)
+            self.image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 120,120)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
