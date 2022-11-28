@@ -377,6 +377,8 @@ class Hero:
 
     def handle_collision(self, other, group):
         if group == 'blocks_basic:main_hero':
-            print(Hero.get_bb(self))
-
-            pass
+            if self.dir == 1 and self.face_dir == 1:
+                self.dir -= 1
+            elif self.dir == -1 and self.face_dir == -1:
+                self.dir += 1
+        pass

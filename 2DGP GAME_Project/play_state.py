@@ -73,7 +73,8 @@ def enter():
 
 ########################################
 
-    game_world.add_collision_group(blocks_basic, main_hero, 'blocks_basic:main_hero')
+    game_world.add_collision_group(blocks_basic, None, 'blocks_basic:main_hero')
+    game_world.add_collision_group(None, main_hero, 'blocks_basic:main_hero')
     game_world.add_collision_group(tree_cube, main_hero, 'tree_node:main_hero')
     game_world.add_collision_group(stone, main_hero, 'stone:main_hero')
 

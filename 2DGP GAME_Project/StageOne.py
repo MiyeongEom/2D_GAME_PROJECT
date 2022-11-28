@@ -42,6 +42,7 @@ class Block1:
 
     def handle_collision(self, other, group):
         if group == 'blocks_basic:main_hero':
+
             pass
 
 
