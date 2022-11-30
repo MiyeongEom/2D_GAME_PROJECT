@@ -22,8 +22,14 @@ key_event_table = {
 TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
-VELOCITY = 123
+VELOCITY = 130
 MASS = 0.004
+
+PIXEL_PER_METER = (10.0 / 0.3)
+RUN_SPEED_KMPH = 1.0  # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 TIME_PER_ATTACK = 0.3
 ATTACK_PER_TIME = 0.6 / TIME_PER_ATTACK
@@ -64,6 +70,7 @@ class IDLE:
         self.attackw()
         self.attacke()
         self.defend()
+        self.fall()
         pass
 
     @staticmethod
@@ -100,12 +107,13 @@ class RUN:
         self.attackw()
         self.attacke()
         self.defend()
+        self.fall()
 
     def draw(self):  #int(boy.frame)
          if self.dir == 1:
-            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 150, 150)
+            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y-3, 150, 150)
          elif self.dir == -1:
-            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
+            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y-3, 150, 150)
 
 
 class Roll:
@@ -155,10 +163,10 @@ class Hero:
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.dir, self.face_dir = 0, 1
-        self.collision = False
+        self.collision = 0
 
         self.isJump = 0
-        self.jump_high = 100
+        self.jump_high = 90
 
         self.attacking = False
         self.skill  = 0   # 1 : q, 2: w, 3: e
@@ -266,7 +274,7 @@ class Hero:
     def jump(self):
         jump_value = 0.00349923324584
         if self.isJump == 1:
-            if self.v > 0:
+            if self.v > 0 :
                 F = ((RUN_SPEED_PPS * jump_value / 20) * self.m * (self.v ** 2))
             else:
                 F = -((RUN_SPEED_PPS * jump_value / 40) * self.m * (self.v ** 2))
@@ -279,6 +287,21 @@ class Hero:
                 self.m = MASS
                 self.isJump = 0
 
+    def fall(self):
+        global val
+        val = 330
+        if self.collision == 0 and self.isJump == 0 and self.y > self.jump_high:
+             F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * 0.003 * (val ** 2))
+             self.y += F
+             val -= 1
+             self.isJump = 0
+
+             if self.collision == 1:
+                 val = 220
+
+             if self.y < self.jump_high:
+                 self.y = self.jump_high
+                 val = 220
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
@@ -362,45 +385,38 @@ class Hero:
     def get_bb(self):
         if self.cur_state == RUN:
             if self.dir == 1:
-                return self.x - 33, self.y - 48, self.x + 35, self.y + 43
+                return self.x - 33, self.y - 50, self.x + 35, self.y + 40
             elif self.dir == -1:
-                return self.x - 35, self.y - 48, self.x + 33, self.y + 43
+                return self.x - 35, self.y - 50, self.x + 33, self.y + 40
 
         elif self.cur_state == Roll:
             if self.dir == 1:
-                return self.x - 40, self.y - 60, self.x + 30, self.y + 10
+                return self.x - 33, self.y - 60, self.x + 35, self.y + 10
             elif self.dir == -1:
-                return self.x - 35, self.y - 60, self.x + 40, self.y + 10
+                return self.x - 35, self.y - 60, self.x + 33, self.y + 10
 
         else:
             if self.face_dir == 1:
-                return self.x - 36, self.y - 53, self.x + 25, self.y + 37
+                return self.x - 33, self.y - 53, self.x + 25, self.y + 37
             elif self.face_dir == -1:
                 return self.x - 25, self.y - 53, self.x + 36, self.y + 37
             return self.x - 25, self.y - 53, self.x + 36, self.y + 37
 
     def handle_collision(self, other, group):
-
         if group == 'blocks_basic:main_hero':
-            self.collision = True
-            print(self.y)
-            print(other.y)
-            if self.x > other.x - 132 and self.y < other.y + 50:
-                self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
-            elif self.x > other.x + 190 and self.y > other.y - 50:
-                self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
-            elif self.y > other.y - 80 :
-                if other.x - 110 < self.x < other.x + 106:
-                    self.v = VELOCITY
-                    self.m = MASS
-                    self.isJump = 0
-            elif self.y < other.y + 40:
-                if other.x - 110 < self.x < other.x + 140:
-                    self.v = VELOCITY
-                    self.m = MASS
-                    self.isJump = 0
-            elif self.y > other.y - 50:
-                if other.x - 110 < self.x < other.x + 140:
-                    self.v = VELOCITY
-                    self.m = MASS
-                    self.isJump = 0
+            if self.y - 50 < other.y + 23 or self.y + 43 < other.y - 27:
+                if self.x + 36 > other.x - 97:
+                    self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
+                elif self.x - 36 > other.x + 97:
+                    self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+            if self.y - 53 < other.y + 45 :
+                self.fall()
+                self.collision = 1
+                self.v = VELOCITY
+                self.m = MASS
+                self.isJump = 0
+            if self.y + 40 > other.y - 51:
+                self.collision = 0
+                self.fall()
+                pass
+

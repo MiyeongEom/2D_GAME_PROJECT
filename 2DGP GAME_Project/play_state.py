@@ -14,7 +14,7 @@ from StageOne_Monster import *
 main_hero = None
 first_stage = None
 running = None
-adj_monster = None
+adj_monster, King_monster,  Mon_Monster  = None, None, None
 
 def handle_events():
     events = get_events()
@@ -26,7 +26,6 @@ def handle_events():
 
 def enter():
     global main_hero, adj_monster, running
-    global blocks_basic, tree_cube
 
     running = True
     first_stage = StageOne()
@@ -59,6 +58,13 @@ def enter():
     block44 = Block3(690, 220)
 
     stone = [block40, block41, block42, block43, block44]
+
+
+    spirit01 = Spirit(370, 220)
+    spirit02 = Spirit(610, 382)
+
+    spirit = [spirit01, spirit02]
+
 ########################################
 
     game_world.add_object(first_stage, 0)
@@ -67,6 +73,7 @@ def enter():
     game_world.add_object(King_monster, 2)
     game_world.add_object(Mon_Monster, 2)
 
+    game_world.add_objects(spirit, 1)
     game_world.add_objects(blocks_basic, 1)
     game_world.add_objects(tree_cube, 1)
     game_world.add_objects(stone, 1)
