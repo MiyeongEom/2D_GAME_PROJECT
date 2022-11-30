@@ -117,7 +117,7 @@ class King_Frog:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 45, self.y - 40, self.x + 35, self.y + 50
+        return self.x - 45, self.y - 45, self.x + 35, self.y + 50
 
     def handle_collision(self, other, group):
         pass

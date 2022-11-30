@@ -83,10 +83,12 @@ class RUN:
         elif event == LD: self.dir -= 1
         elif event == RU: self.dir -= 1
         elif event == LU: self.dir += 1
+        if self.dir != 0:
+            self.face_dir = self.dir
 
     def exit(self, event):
         print('EXIT EXIT')
-        self.face_dir = self.dir
+        pass
 
 
     def do(self):
@@ -116,8 +118,7 @@ class Roll:
 
     def exit(self, event):
         print('EXIT Roll')
-        # run을 나가서 idle로 갈 때 run의 방향을 알려줄 필요가 있다.
-        self.face_dir = self.dir
+        pass
 
 
     def do(self):
@@ -154,6 +155,7 @@ class Hero:
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.dir, self.face_dir = 0, 1
+        self.collision = False
 
         self.isJump = 0
         self.jump_high = 100
@@ -277,10 +279,11 @@ class Hero:
                 self.m = MASS
                 self.isJump = 0
 
-    def handle_event(self, event):  # 주인공이 스스로 이벤트를 처리할 수 있게
+
+    def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
-            self.add_event(key_event)  # 변환된 내부 이벤트를 큐에 추가
+            self.add_event(key_event)
 
         elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
             if self.isJump == 0:
@@ -359,9 +362,9 @@ class Hero:
     def get_bb(self):
         if self.cur_state == RUN:
             if self.dir == 1:
-                return self.x - 45, self.y - 48, self.x + 35, self.y + 43
+                return self.x - 33, self.y - 48, self.x + 35, self.y + 43
             elif self.dir == -1:
-                return self.x - 35, self.y - 48, self.x + 45, self.y + 43
+                return self.x - 35, self.y - 48, self.x + 33, self.y + 43
 
         elif self.cur_state == Roll:
             if self.dir == 1:
@@ -374,11 +377,30 @@ class Hero:
                 return self.x - 36, self.y - 53, self.x + 25, self.y + 37
             elif self.face_dir == -1:
                 return self.x - 25, self.y - 53, self.x + 36, self.y + 37
+            return self.x - 25, self.y - 53, self.x + 36, self.y + 37
 
     def handle_collision(self, other, group):
+
         if group == 'blocks_basic:main_hero':
-            if self.dir == 1 and self.face_dir == 1:
-                self.dir -= 1
-            elif self.dir == -1 and self.face_dir == -1:
-                self.dir += 1
-        pass
+            self.collision = True
+            print(self.y)
+            print(other.y)
+            if self.x > other.x - 132 and self.y < other.y + 50:
+                self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
+            elif self.x > other.x + 190 and self.y > other.y - 50:
+                self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+            elif self.y > other.y - 80 :
+                if other.x - 110 < self.x < other.x + 106:
+                    self.v = VELOCITY
+                    self.m = MASS
+                    self.isJump = 0
+            elif self.y < other.y + 40:
+                if other.x - 110 < self.x < other.x + 140:
+                    self.v = VELOCITY
+                    self.m = MASS
+                    self.isJump = 0
+            elif self.y > other.y - 50:
+                if other.x - 110 < self.x < other.x + 140:
+                    self.v = VELOCITY
+                    self.m = MASS
+                    self.isJump = 0
