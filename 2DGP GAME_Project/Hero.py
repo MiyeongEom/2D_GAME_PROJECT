@@ -276,32 +276,27 @@ class Hero:
         if self.isJump == 1:
             if self.v > 0 :
                 F = ((RUN_SPEED_PPS * jump_value / 20) * self.m * (self.v ** 2))
-            else:
-                F = -((RUN_SPEED_PPS * jump_value / 40) * self.m * (self.v ** 2))
-            self.y += round(F)
-            self.v -= 1
+                self.y += round(F)
+                self.v -= 1
 
-            if self.y < self.jump_high:
-                self.y = self.jump_high
-                self.v = VELOCITY
-                self.m = MASS
+            else:
                 self.isJump = 0
 
     def fall(self):
-        global val
-        val = 330
-        if self.collision == 0 and self.isJump == 0 and self.y > self.jump_high:
-             F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * 0.003 * (val ** 2))
-             self.y += F
-             val -= 1
-             self.isJump = 0
+        if self.isJump == 0 and self.y > self.jump_high:
+            F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
+            self.y += F
+            self.v -= 1
 
-             if self.collision == 1:
-                 val = 220
+            if self.collision == 0:
+                if self.y < self.jump_high:
+                    self.y = self.jump_high
+                    self.v = VELOCITY
+                    self.m = MASS
 
-             if self.y < self.jump_high:
-                 self.y = self.jump_high
-                 val = 220
+            if self.collision == 1:
+                self.y += 10
+
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
@@ -409,12 +404,13 @@ class Hero:
                     self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
                 elif self.x - 36 > other.x + 97:
                     self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+
             if self.y - 53 < other.y + 45 :
-                self.fall()
                 self.collision = 1
                 self.v = VELOCITY
                 self.m = MASS
                 self.isJump = 0
+
             if self.y + 40 > other.y - 51:
                 self.collision = 0
                 self.fall()
