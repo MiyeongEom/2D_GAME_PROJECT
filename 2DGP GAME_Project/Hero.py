@@ -22,7 +22,7 @@ key_event_table = {
 TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
-VELOCITY = 130
+VELOCITY = 160
 MASS = 0.004
 
 PIXEL_PER_METER = (10.0 / 0.3)
@@ -70,7 +70,6 @@ class IDLE:
         self.attackw()
         self.attacke()
         self.defend()
-        self.fall()
         pass
 
     @staticmethod
@@ -107,7 +106,6 @@ class RUN:
         self.attackw()
         self.attacke()
         self.defend()
-        self.fall()
 
     def draw(self):  #int(boy.frame)
          if self.dir == 1:
@@ -167,6 +165,7 @@ class Hero:
 
         self.isJump = 0
         self.jump_high = 90
+        self.jump_value = 0
 
         self.attacking = False
         self.skill  = 0   # 1 : q, 2: w, 3: e
@@ -274,29 +273,32 @@ class Hero:
     def jump(self):
         jump_value = 0.00349923324584
         if self.isJump == 1:
-            if self.v > 0 :
-                F = ((RUN_SPEED_PPS * jump_value / 20) * self.m * (self.v ** 2))
+            if self.v > 0:
+                F = ((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
                 self.y += round(F)
                 self.v -= 1
-
             else:
-                self.isJump = 0
-
-    def fall(self):
-        if self.isJump == 0 and self.y > self.jump_high:
-            F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
-            self.y += F
-            self.v -= 1
-
-            if self.collision == 0:
-                if self.y < self.jump_high:
-                    self.y = self.jump_high
-                    self.v = VELOCITY
-                    self.m = MASS
+                self.fall()
 
             if self.collision == 1:
-                self.y += 10
+                print('vvvvvvvvvv')
+                self.v = 0
+                F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
+                self.y += round(F)
+                self.v -= 1
+                self.collision = 0
 
+    def fall(self):
+        print('dddddd')
+        F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
+        self.y += round(F)
+        self.v -= 1
+
+        if self.y < self.jump_high:
+            self.y = self.jump_high
+            self.v = VELOCITY
+            self.m = MASS
+            self.isJump = 0
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
@@ -399,20 +401,18 @@ class Hero:
 
     def handle_collision(self, other, group):
         if group == 'blocks_basic:main_hero':
-            if self.y - 50 < other.y + 23 or self.y + 43 < other.y - 27:
+            print('충돌중')
+            if self.y - 50 < other.y + 23 or self.y + 43 < other.y - 27: #좌우
                 if self.x + 36 > other.x - 97:
                     self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
                 elif self.x - 36 > other.x + 97:
                     self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-            if self.y - 53 < other.y + 45 :
-                self.collision = 1
-                self.v = VELOCITY
-                self.m = MASS
-                self.isJump = 0
-
-            if self.y + 40 > other.y - 51:
-                self.collision = 0
+            if self.y - 53 < other.y + 45 : #아래로 점프 - 벽
                 self.fall()
+                pass
+
+            if self.y + 40 > other.y - 51: #위로 내려와 - 벽
+                self.collision = 1
                 pass
 
