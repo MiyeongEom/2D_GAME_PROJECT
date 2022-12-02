@@ -70,6 +70,12 @@ class IDLE:
         self.attackw()
         self.attacke()
         self.defend()
+
+        if self.isJump == 0:
+            self.y += round(-1)
+            if self.y < self.jump_high :
+                self.y = self.jump_high
+
         pass
 
     @staticmethod
@@ -101,6 +107,7 @@ class RUN:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
         self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
+
         self.jump()
         self.attackq()
         self.attackw()
@@ -109,9 +116,9 @@ class RUN:
 
     def draw(self):  #int(boy.frame)
          if self.dir == 1:
-            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y-3, 150, 150)
+            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 150, 150)
          elif self.dir == -1:
-            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y-3, 150, 150)
+            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
 
 
 class Roll:
@@ -210,6 +217,7 @@ class Hero:
         elif self.skill == 4:
             self.frame =  (self.frame + FRAMES_PER_DEFEND * DEFEND_PER_TIME * 2) % 12
 
+
     def draw(self):
         if self.skill == 1:
             if self.dir == 1:
@@ -280,25 +288,17 @@ class Hero:
             else:
                 self.fall()
 
-            if self.collision == 1:
-                print('vvvvvvvvvv')
-                self.v = 0
-                F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
-                self.y += round(F)
-                self.v -= 1
-                self.collision = 0
-
     def fall(self):
-        print('dddddd')
-        F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
-        self.y += round(F)
-        self.v -= 1
+        if self.isJump == 1:
+            F = -((RUN_SPEED_PPS * 0.00349923324584 / 40) * self.m * (self.v ** 2))
+            self.y += round(F)
+            self.v -= 1
 
-        if self.y < self.jump_high:
-            self.y = self.jump_high
-            self.v = VELOCITY
-            self.m = MASS
-            self.isJump = 0
+            if self.y < self.jump_high:
+                self.y = self.jump_high
+                self.v = VELOCITY
+                self.m = MASS
+                self.isJump = 0
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
@@ -382,37 +382,83 @@ class Hero:
     def get_bb(self):
         if self.cur_state == RUN:
             if self.dir == 1:
-                return self.x - 33, self.y - 50, self.x + 35, self.y + 40
+                return self.x - 27, self.y - 46, self.x + 28, self.y + 40
             elif self.dir == -1:
-                return self.x - 35, self.y - 50, self.x + 33, self.y + 40
+                return self.x - 28, self.y - 46, self.x + 27, self.y + 40
 
         elif self.cur_state == Roll:
             if self.dir == 1:
-                return self.x - 33, self.y - 60, self.x + 35, self.y + 10
+                return self.x - 27, self.y - 46, self.x + 28, self.y + 10
             elif self.dir == -1:
-                return self.x - 35, self.y - 60, self.x + 33, self.y + 10
+                return self.x - 25, self.y - 46, self.x + 27, self.y + 10
 
         else:
             if self.face_dir == 1:
-                return self.x - 33, self.y - 53, self.x + 25, self.y + 37
+                return self.x - 27, self.y - 48, self.x + 28, self.y + 40
             elif self.face_dir == -1:
-                return self.x - 25, self.y - 53, self.x + 36, self.y + 37
-            return self.x - 25, self.y - 53, self.x + 36, self.y + 37
+                return self.x - 28, self.y - 48, self.x + 27, self.y + 40
+            return self.x - 28, self.y - 50, self.x + 28, self.y + 40
 
-    def handle_collision(self, other, group):
+    def handle_collision(self, other, group): #other.get_bb()[1]
         if group == 'blocks_basic:main_hero':
-            print('충돌중')
-            if self.y - 50 < other.y + 23 or self.y + 43 < other.y - 27: #좌우
-                if self.x + 36 > other.x - 97:
+            print('blocks_basic', self.collision)
+            if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
+                if self.get_bb()[2] > other.get_bb()[0]:
                     self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
-                elif self.x - 36 > other.x + 97:
+                elif self.get_bb()[0] > other.get_bb()[2]:
                     self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-            if self.y - 53 < other.y + 45 : #아래로 점프 - 벽
-                self.fall()
-                pass
+            #if self.y - 53 < other.y + 45 : #아래로 점프 - 벽
+            #if self.y + 40 > other.y - 40: #위로 내려와 - 벽
 
-            if self.y + 40 > other.y - 51: #위로 내려와 - 벽
-                self.collision = 1
-                pass
+            if other.get_bb()[3]+1 > self.get_bb()[3] > other.get_bb()[1]-1:
+                self.fall()
+
+            elif self.get_bb()[1] < other.get_bb()[3]:
+                self.y += 1
+                self.v = VELOCITY
+                self.m = MASS
+                self.isJump = 0
+
+        if group == 'tree_node:main_hero':
+            if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
+                if self.get_bb()[2] > other.get_bb()[0]:
+                    self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
+                elif self.get_bb()[0] > other.get_bb()[2]:
+                    self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+
+            #if self.y - 53 < other.y + 45 : #아래로 점프 - 벽
+            #if self.y + 40 > other.y - 40: #위로 내려와 - 벽
+
+            if other.get_bb()[3]+1 > self.get_bb()[3] > other.get_bb()[1]-1:
+                self.fall()
+
+            elif self.get_bb()[1] < other.get_bb()[3]:
+                self.y += 1
+                self.v = VELOCITY
+                self.m = MASS
+                self.isJump = 0
+
+        if group == 'stone:main_hero':
+            if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
+                if self.get_bb()[2] > other.get_bb()[0]:
+                    self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
+                elif self.get_bb()[0] > other.get_bb()[2]:
+                    self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
+
+            #if self.y - 53 < other.y + 45 : #아래로 점프 - 벽
+            #if self.y + 40 > other.y - 40: #위로 내려와 - 벽
+
+            if other.get_bb()[3]+1 > self.get_bb()[3] > other.get_bb()[1]-1:
+                self.fall()
+
+            elif self.get_bb()[1] < other.get_bb()[3]:
+                self.y += 1
+                self.v = VELOCITY
+                self.m = MASS
+                self.isJump = 0
+
+        if group == 'spirit:main_hero':
+            pass
+
 

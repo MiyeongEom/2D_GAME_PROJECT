@@ -84,6 +84,7 @@ def enter():
     game_world.add_collision_group(None, main_hero, 'blocks_basic:main_hero')
     game_world.add_collision_group(tree_cube, main_hero, 'tree_node:main_hero')
     game_world.add_collision_group(stone, main_hero, 'stone:main_hero')
+    game_world.add_collision_group(spirit, main_hero, 'spirit:main_hero')
 
 
 # 게임 종료 - 객체 소멸

@@ -43,7 +43,7 @@ class Block1:
         pass
 
     def get_bb(self):
-        return self.x - 97, self.y - 27, self.x + 95, self.y + 21
+        return self.x - 97.2, self.y - 24, self.x + 97.2, self.y + 24
 
     def handle_collision(self, other, group):
         if group == 'blocks_basic:main_hero':
@@ -72,7 +72,7 @@ class Block2:
         return self.x - 28, self.y - 27, self.x + 26, self.y + 25
 
     def handle_collision(self, other, group):
-        if group == 'block2:main_hero':
+        if group == 'tree_node:main_hero':
             pass
 
 
@@ -122,5 +122,7 @@ class Spirit:
         return self.x - 15, self.y - 55, self.x + 15, self.y + 10
 
     def handle_collision(self, other, group):
-        pass
+        if group == 'spirit:main_hero':
+            game_world.remove_object(self)
+            pass
 
