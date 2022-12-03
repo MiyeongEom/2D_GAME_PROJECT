@@ -17,6 +17,7 @@ def remove_object(o):
     for layer in objects:
         if o in layer:
             layer.remove(o)
+            remove_collision_object(o)
             del o
             return
     raise ValueError('Trying destroy non existing object')
@@ -48,8 +49,6 @@ def add_collision_group(a, b, group):
             collision_group[group][1] += b
         else: #단일 오브젝트라면
             collision_group[group][1].append(b)
-
-    print(collision_group)
 
 
 def all_collision_pairs():

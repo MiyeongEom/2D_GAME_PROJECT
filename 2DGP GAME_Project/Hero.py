@@ -1,6 +1,6 @@
 from pico2d import*
 import game_framework
-import StageOne
+import Skill
 import game_world
 
 RD, LD, RU, LU, DD = range(5)
@@ -38,6 +38,10 @@ FRAMES_PER_ATTACK = 6
 TIME_PER_DEFEND = 2
 DEFEND_PER_TIME = 2 / TIME_PER_DEFEND
 FRAMES_PER_DEFEND = 1
+
+TIME_PER_ANIMATION = 0.3
+ANIMATION_PER_TIME = 0.6 / TIME_PER_ANIMATION
+FRAMES_PER_ANIMATION = 12
 
 def Set_Speed(time_per_action, frames_per_action):
     global FRAMES_PER_ACTION
@@ -167,6 +171,7 @@ class Hero:
         self.y = 90
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
+        self.aniframe = 0
         self.dir, self.face_dir = 0, 1
         self.collision = 0
 
@@ -190,6 +195,11 @@ class Hero:
         self.AttackE_image = load_image('Resource/MC/MC_AttackE.png')
         self.Defend_image = load_image('Resource/MC/MC_Defend.png')
 
+        #################################################################
+
+        self.QEffect_image = load_image('Resource/Effect/Q_Effect01.png')
+        self.WEffect_image = load_image('Resource/Effect/W_Effect01.png')
+
         self.q = []
         self.cur_state = IDLE
         self.cur_state.enter(self, None) # 맨처음에는 이벤트가 없었기에
@@ -210,6 +220,7 @@ class Hero:
 
         elif self.skill == 2:
             self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+            self.aniframe = (self.frame + FRAMES_PER_ANIMATION * ANIMATION_PER_TIME * game_framework.frame_time) % 11
 
         elif self.skill == 3:
             self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
@@ -222,27 +233,39 @@ class Hero:
         if self.skill == 1:
             if self.dir == 1:
                 self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.QEffect_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x + 20, self.y, 150,150)
+
             elif self.dir == -1:
-                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
-                                                    190)
+                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,190)
+                self.QEffect_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x - 20, self.y, 150, 150)
+
             elif self.face_dir == 1:
                 self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.QEffect_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x + 20, self.y , 150,150)
 
             elif self.face_dir == -1:
-                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
-                                                    190)
+                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
+                self.QEffect_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x - 20, self.y, 150, 150)
+
         elif self.skill == 2:
             if self.dir == 1:
                 self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.WEffect_image.clip_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, self.x + 5, self.y+30, 150, 150)
+
             elif self.dir == -1:
                 self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
                                                     190)
+                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, 0, 'h', self.x -5, self.y+30, 150, 150)
+
             elif self.face_dir == 1:
                 self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.WEffect_image.clip_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, self.x + 5, self.y + 30, 160, 160)
 
             elif self.face_dir == -1:
                 self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
                                                     190)
+                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, 0, 'h', self.x -5,
+                                                       self.y+30, 150, 150)
 
         elif self.skill == 3:
             if self.dir == 1:
@@ -401,7 +424,6 @@ class Hero:
 
     def handle_collision(self, other, group): #other.get_bb()[1]
         if group == 'blocks_basic:main_hero':
-            print('blocks_basic', self.collision)
             if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
                 if self.get_bb()[2] > other.get_bb()[0]:
                     self.x -= self.dir * RUN_SPEED_PPS * game_framework.frame_time
