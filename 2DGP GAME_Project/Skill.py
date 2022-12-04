@@ -3,10 +3,12 @@ import game_framework
 import game_world
 import server
 
+#W
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30
 TIME_PER_ACTION = 0.125
 ACTION_PER_TIME = 2.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
+
 
 class SkillE:
     image = None
@@ -23,7 +25,6 @@ class SkillE:
         self.x += self.velocity
         if self.x < server.main_hero.x - 150 or self.x > server.main_hero.x + 150:
             game_world.remove_object(self)
-        pass
 
     def draw(self):
         self.image.clip_draw(int(self.frame) % 8 * 100, 0, 100, 100, self.x , self.y, 40, 40)

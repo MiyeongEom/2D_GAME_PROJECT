@@ -57,6 +57,25 @@ class Frog:
         elif self.x <= self.ax - 60:
             self.dir += 0.2
             self.face_dir = 1
+
+        if server.main_hero.skill == 1:
+            if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
+                # draw_rectangle(self.x, self.y - 56, self.x + 85, self.y + 46)
+                # la > rb, ra < lb, ta < bb, ba > tb a가 몬스터 b스킬
+                if server.adj_monster.get_bb()[0] < server.main_hero.x + 85 < server.adj_monster.get_bb()[2] :
+                    game_world.remove_object(server.adj_monster)
+            else:
+                if server.adj_monster.get_bb()[0] < server.main_hero.x - 85 < server.adj_monster.get_bb()[2] :
+                    game_world.remove_object(server.adj_monster)
+
+        if server.main_hero.skill == 2:
+            if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
+                # draw_rectangle(self.x - 40, self.y - 37, self.x + 75, self.y + 8)
+                if server.adj_monster.get_bb()[0] < server.main_hero.x + 55 < server.adj_monster.get_bb()[2]:
+                    game_world.remove_object(server.adj_monster)
+            else:
+                if server.adj_monster.get_bb()[0] < server.main_hero.x - 55 < server.adj_monster.get_bb()[2]:
+                    game_world.remove_object(server.adj_monster)
         pass
 
 
@@ -77,7 +96,9 @@ class Frog:
     def handle_collision(self, other, group):
         if group == 'skill:adj_monster':
             game_world.remove_object(self)
-        pass
+
+        if group == 'main_hero:adj_monster':
+            pass
 
 
 class King_Frog:
@@ -107,6 +128,23 @@ class King_Frog:
         elif self.x <= self.ax - 25:
             self.dir += 0.1
             self.face_dir = 1
+
+        if server.main_hero.skill == 1:
+            if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
+                if server.King_monster.get_bb()[0] < server.main_hero.x + 85 < server.King_monster.get_bb()[2] :
+                    game_world.remove_object(server.King_monster)
+            else:
+                if server.King_monster.get_bb()[0] < server.main_hero.x - 85 < server.King_monster.get_bb()[2] :
+                    game_world.remove_object(server.King_monster)
+
+        if server.main_hero.skill == 2:
+            if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
+                if server.King_monster.get_bb()[0] < server.main_hero.x + 55 < server.King_monster.get_bb()[2] :
+                    game_world.remove_object(server.King_monster)
+            else:
+                if server.King_monster.get_bb()[0] < server.main_hero.x - 55 < server.King_monster.get_bb()[2] :
+                    game_world.remove_object(server.King_monster)
+
         pass
 
 
@@ -137,7 +175,7 @@ class Monster:
         self.ax, self.ay = x, y
         self.frame = 0
 
-        self.dir = 0
+        self.dir = 0.05
         self.face_dir = -1
 
         self.speed = 0
@@ -147,11 +185,33 @@ class Monster:
         self.speed = Monster_SPEED_PPS
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
 
-        # self.x += self.speed * game_framework.frame_time
-        # if self.x < self.ax + 50 :  #초기값보다 이동값이 더 클 때
-        #     self.x += self.speed * game_framework.frame_time
-        # elif self.x >= self.ax - 50:
-        #     self.x -= self.speed * game_framework.frame_time
+        self.x -= self.dir
+        if self.x <= self.ax - 10:
+            self.dir -= 0.05
+            self.face_dir = 1
+
+        elif self.x >= self.ax + 10:  # 초기값보다 이동값이 더 클 때
+            self.dir += 0.05
+            self.face_dir = -1
+
+        if server.main_hero.skill == 1:
+            if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
+                if server.Mon_Monster.get_bb()[0] < server.main_hero.x + 85 < server.Mon_Monster.get_bb()[2]:
+                    game_world.remove_object(server.Mon_Monster)
+
+            else:
+                if server.Mon_Monster.get_bb()[0] < server.main_hero.x - 85 < server.Mon_Monster.get_bb()[2] :
+                    game_world.remove_object(server.Mon_Monster)
+
+        if server.main_hero.skill == 2:
+            if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
+                if server.Mon_Monster.get_bb()[0] < server.main_hero.x + 55 < server.Mon_Monster.get_bb()[2]:
+                    game_world.remove_object(server.Mon_Monster)
+
+            else:
+                if server.Mon_Monster.get_bb()[0] < server.main_hero.x - 55 < server.Mon_Monster.get_bb()[2] :
+                    game_world.remove_object(server.Mon_Monster)
+
         pass
 
 

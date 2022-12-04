@@ -84,15 +84,16 @@ def enter():
     game_world.add_collision_group(None, server.tree_cube, 'skill:tree_node')
     game_world.add_collision_group(None, server.stone, 'skill:stone')
 
-
     # 스킬과 몬스터 충돌
     game_world.add_collision_group(None, server.Mon_Monster, 'skill:Mon_Monster')
     game_world.add_collision_group(None, server.adj_monster, 'skill:adj_monster')
     game_world.add_collision_group(None, server.King_monster, 'skill:King_monster')
 
-    #영혼과 주인공 충돌
+    # 영혼과 주인공 충돌
     game_world.add_collision_group(server.spirit, server.main_hero, 'spirit:main_hero')
 
+    # 주인공과 몬스터 충돌
+    game_world.add_collision_group(server.main_hero, server.adj_monster, 'main_hero:adj_monster')
 
 # 게임 종료 - 객체 소멸
 def exit():
@@ -108,8 +109,6 @@ def update():
             #print('COLLISION by', group)
             a.handle_collision(b, group)
             b.handle_collision(a, group)
-
-
 
 def draw_world():
     for game_object in game_world.all_objects():
@@ -134,7 +133,6 @@ def collide(a, b):
     if ra < lb : return False
     if ta < bb : return False
     if ba > tb : return False
-
     return True
 
 def test_self():
