@@ -1,6 +1,6 @@
 from pico2d import*
 import game_framework
-import Skill
+from Skill import SkillE
 import game_world
 
 RD, LD, RU, LU, DD = range(5)
@@ -25,7 +25,7 @@ FRAMES_PER_ACTION = 5
 VELOCITY = 160
 MASS = 0.004
 
-PIXEL_PER_METER = (10.0 / 0.3)
+PIXEL_PER_METER = (10.0 / 0.4)
 RUN_SPEED_KMPH = 1.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
@@ -41,7 +41,16 @@ FRAMES_PER_DEFEND = 1
 
 TIME_PER_ANIMATION = 0.3
 ANIMATION_PER_TIME = 0.6 / TIME_PER_ANIMATION
-FRAMES_PER_ANIMATION = 12
+FRAMES_PER_ANIMATION = 9
+
+TIME_PER_ANIMATION2 = 0.5
+ANIMATION2_PER_TIME = 1.0 / TIME_PER_ANIMATION2
+FRAMES_PER_ANIMATION2 = 8
+
+TIME_PER_ANIMATION3 = 10.0
+ANIMATION3_PER_TIME = 8.0 / TIME_PER_ANIMATION3
+FRAMES_PER_ANIMATION3 = 8
+
 
 def Set_Speed(time_per_action, frames_per_action):
     global FRAMES_PER_ACTION
@@ -56,14 +65,11 @@ class IDLE:
     @staticmethod
     def enter(self, event):
         Set_Speed(1, 6)
-        print('ENTER IDLE')
         self.dir = 0
         pass
 
     @staticmethod
     def exit(self, event):
-        print('EXIT RUN')
-
         pass
 
     @staticmethod
@@ -75,8 +81,8 @@ class IDLE:
         self.attacke()
         self.defend()
 
-        if self.isJump == 0:
-            self.y += round(-1)
+        if self.isJump == 0 :
+            self.y += round(-2)
             if self.y < self.jump_high :
                 self.y = self.jump_high
 
@@ -93,7 +99,6 @@ class IDLE:
 class RUN:
     def enter(self, event):
         Set_Speed(0.5, 6)
-        print('ENTER RUN')
 
         if event == RD: self.dir += 1
         elif event == LD: self.dir -= 1
@@ -103,7 +108,6 @@ class RUN:
             self.face_dir = self.dir
 
     def exit(self, event):
-        print('EXIT EXIT')
         pass
 
 
@@ -124,17 +128,14 @@ class RUN:
          elif self.dir == -1:
             self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
 
-
 class Roll:
     def enter(self, event):
         Set_Speed(1.5, 6)
-        print('ENTER Roll')
         # self.dir을 결정해야 함.
         # 왜? : 아이들에서 런 상태가 되었을 때 아이들에서 나올 떄 왼쪽키를 눌렀는지 혹은 오른쪽 키를 눌렀는지에 의해 판단됨
         # 따라서 셀프 뿐만 아니라 이벤트도 같이 전달되어야 함, 이것을 아이들도 맞춰줘야함
 
     def exit(self, event):
-        print('EXIT Roll')
         pass
 
 
@@ -192,13 +193,16 @@ class Hero:
         self.Jump_image = load_image('Resource/MC/MC_JUMP.png')
         self.AttackQ_image = load_image('Resource/MC/MC_AttackQ.png')
         self.AttackW_image = load_image('Resource/MC/MC_AttackW.png')
-        self.AttackE_image = load_image('Resource/MC/MC_AttackE.png')
+        self.AttackE_image = load_image('Resource/MC/MC_FUN.png')
         self.Defend_image = load_image('Resource/MC/MC_Defend.png')
 
         #################################################################
 
         self.QEffect_image = load_image('Resource/Effect/Q_Effect01.png')
         self.WEffect_image = load_image('Resource/Effect/W_Effect01.png')
+        self.EEffect02_image = load_image('Resource/Effect/E_Effect02.png')
+
+        self.DEffect_image = load_image('Resource/Effect/D_Effect.png')
 
         self.q = []
         self.cur_state = IDLE
@@ -220,14 +224,15 @@ class Hero:
 
         elif self.skill == 2:
             self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
-            self.aniframe = (self.frame + FRAMES_PER_ANIMATION * ANIMATION_PER_TIME * game_framework.frame_time) % 11
+            self.aniframe = (self.frame + FRAMES_PER_ANIMATION * ANIMATION_PER_TIME * game_framework.frame_time) % 9
 
         elif self.skill == 3:
             self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+            self.aniframe = (self.frame + FRAMES_PER_ANIMATION2 * ANIMATION2_PER_TIME * game_framework.frame_time) % 8
 
         elif self.skill == 4:
             self.frame =  (self.frame + FRAMES_PER_DEFEND * DEFEND_PER_TIME * 2) % 12
-
+            self.aniframe = (self.frame + FRAMES_PER_ANIMATION3 * ANIMATION3_PER_TIME * game_framework.frame_time) % 8
 
     def draw(self):
         if self.skill == 1:
@@ -250,52 +255,69 @@ class Hero:
         elif self.skill == 2:
             if self.dir == 1:
                 self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.WEffect_image.clip_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, self.x + 5, self.y+30, 150, 150)
+                self.WEffect_image.clip_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, self.x + 5, self.y+30, 150, 150)
 
             elif self.dir == -1:
                 self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
                                                     190)
-                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, 0, 'h', self.x -5, self.y+30, 150, 150)
+                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, 0, 'h', self.x -5, self.y+30, 150, 150)
 
             elif self.face_dir == 1:
                 self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.WEffect_image.clip_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, self.x + 5, self.y + 30, 160, 160)
+                self.WEffect_image.clip_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, self.x + 5, self.y + 30, 160, 160)
 
             elif self.face_dir == -1:
                 self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
                                                     190)
-                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 11 * 100, 0, 100, 100, 0, 'h', self.x -5,
+                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, 0, 'h', self.x -5,
                                                        self.y+30, 150, 150)
 
         elif self.skill == 3:
             if self.dir == 1:
                 self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y , 200,
+                                             200)
+
             elif self.dir == -1:
                 self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
-                                                       190,
-                                                       190)
+                                                       190,190)
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y , 200,
+                                              200)
+
             elif self.face_dir == 1:
                 self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y, 200,
+                                               200)
 
             elif self.face_dir == -1:
                 self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
-                                                       190,
-                                                       190)
+                                                       190,190)
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y , 200,
+                                               200)
 
         elif self.skill == 4:
             if self.dir == 1:
                 self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-10, 130,
+                                               130)
             elif self.dir == -1:
                 self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
-                                                       190,
-                                                       190)
+                                                       190, 190)
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-10, 130,
+                                             130)
+
             elif self.face_dir == 1:
                 self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-10, 130,
+                                               130)
 
             elif self.face_dir == -1:
                 self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
-                                                       190,
-                                                       190)
+                                                       190,190)
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-10, 130,
+                                             130)
+
+
         elif self.skill == 0:
             self.cur_state.draw(self)
             draw_rectangle(*self.get_bb())
@@ -383,6 +405,7 @@ class Hero:
             self.attacking = True
             self.skill_time += 1
             self.skill_reset -= 1
+            self.fire_skill()
 
             if self.skill_time == 100:
                 self.attacking = False
@@ -390,13 +413,23 @@ class Hero:
                 self.skill_time = 0
                 self.skill_reset = 3
 
+    def fire_skill(self):
+        skille = SkillE(self.x + 35, self.y, self.face_dir * 2)
+        game_world.add_object(skille, 1)
+        game_world.add_collision_group(skille, None, 'skill:adj_monster')
+        game_world.add_collision_group(skille, None, 'skill:King_monster')
+        game_world.add_collision_group(skille, None, 'skill:Mon_Monster')
+        game_world.add_collision_group(skille, None, 'skill:blocks_basic')
+        game_world.add_collision_group(skille, None, 'skill:tree_node')
+        game_world.add_collision_group(skille, None, 'skill:stone')
+
     def defend(self):
         if self.skill == 4:
             self.attacking = True
             self.skill_time += 1
             self.skill_reset -= 1
 
-            if self.skill_time == 800:  #2초
+            if self.skill_time == 300:  #1초
                 self.attacking = False
                 self.skill = 0
                 self.skill_time = 0
@@ -437,7 +470,7 @@ class Hero:
                 self.fall()
 
             elif self.get_bb()[1] < other.get_bb()[3]:
-                self.y += 1
+                self.y += 2
                 self.v = VELOCITY
                 self.m = MASS
                 self.isJump = 0
@@ -456,7 +489,7 @@ class Hero:
                 self.fall()
 
             elif self.get_bb()[1] < other.get_bb()[3]:
-                self.y += 1
+                self.y += 2
                 self.v = VELOCITY
                 self.m = MASS
                 self.isJump = 0
@@ -475,7 +508,7 @@ class Hero:
                 self.fall()
 
             elif self.get_bb()[1] < other.get_bb()[3]:
-                self.y += 1
+                self.y += 2
                 self.v = VELOCITY
                 self.m = MASS
                 self.isJump = 0

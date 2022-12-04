@@ -32,30 +32,24 @@ def enter():
     server.King_monster = King_Frog(90, 305)
     server.Mon_Monster = Monster(1150, 370)
 
-# (130, 240), (410, 140), (900, 300)
+    #기본 블럭
     block01 = Block1(130, 240)
     block02 = Block1(310, 140)
-    block03 = Block1(850, 200)
-    block04 = Block1(1100, 300)
+    block03 = Block1(850, 230)
+    block04 = Block1(1170, 300)
 
     server.blocks_basic = [block01, block02, block03, block04]
 
-# (410, 330), (540, 330), (670, 300)
+    #나무큐브
     block20 = Block2(350, 330)
     block21 = Block2(480, 330)
     block22 = Block2(610, 300)
 
     server.tree_cube = [block20, block21, block22]
 
-# (750, 60), (750, 100), (750, 140), (750, 180), (750, 220)
-
+    #벽돌
     block40 = Block3(690, 60)
-    block41 = Block3(690, 100)
-    block42 = Block3(690, 140)
-    block43 = Block3(690, 180)
-    block44 = Block3(690, 220)
-
-    server.stone = [block40, block41, block42, block43, block44]
+    server.stone = [block40]
 
 
     spirit01 = Spirit(370, 220)
@@ -67,6 +61,7 @@ def enter():
 
     game_world.add_object(server.first_stage, 0)
     game_world.add_object(server.main_hero, 2)
+
     game_world.add_object(server.adj_monster, 2)
     game_world.add_object(server.King_monster, 2)
     game_world.add_object(server.Mon_Monster, 2)
@@ -79,10 +74,23 @@ def enter():
 
 ########################################
 
-    game_world.add_collision_group(server.blocks_basic, None, 'blocks_basic:main_hero')
-    game_world.add_collision_group(None, server.main_hero, 'blocks_basic:main_hero')
+    # 블럭(배경장애물)과 주인공 충돌그룹
+    game_world.add_collision_group(server.blocks_basic, server.main_hero, 'blocks_basic:main_hero')
     game_world.add_collision_group(server.tree_cube, server.main_hero, 'tree_node:main_hero')
     game_world.add_collision_group(server.stone, server.main_hero, 'stone:main_hero')
+
+    # 블럭과 스틸 충돌 시 스킬 삭제
+    game_world.add_collision_group(None, server.blocks_basic, 'skill:blocks_basic')
+    game_world.add_collision_group(None, server.tree_cube, 'skill:tree_node')
+    game_world.add_collision_group(None, server.stone, 'skill:stone')
+
+
+    # 스킬과 몬스터 충돌
+    game_world.add_collision_group(None, server.Mon_Monster, 'skill:Mon_Monster')
+    game_world.add_collision_group(None, server.adj_monster, 'skill:adj_monster')
+    game_world.add_collision_group(None, server.King_monster, 'skill:King_monster')
+
+    #영혼과 주인공 충돌
     game_world.add_collision_group(server.spirit, server.main_hero, 'spirit:main_hero')
 
 

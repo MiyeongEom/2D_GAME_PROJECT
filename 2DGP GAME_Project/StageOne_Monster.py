@@ -1,5 +1,5 @@
-import random
 import game_framework
+import game_world
 from BehaviorTree import BehaviorTree, SelectorNode, SequenceNode, LeafNode
 from pico2d import *
 import math
@@ -75,6 +75,8 @@ class Frog:
             return self.x - 40, self.y - 40, self.x + 38, self.y + 30
 
     def handle_collision(self, other, group):
+        if group == 'skill:adj_monster':
+            game_world.remove_object(self)
         pass
 
 
@@ -120,6 +122,8 @@ class King_Frog:
         return self.x - 45, self.y - 45, self.x + 35, self.y + 50
 
     def handle_collision(self, other, group):
+        if group == 'skill:King_monster':
+            game_world.remove_object(self)
         pass
 
 
@@ -163,4 +167,5 @@ class Monster:
         return self.x - 35, self.y - 47, self.x + 39, self.y + 50
 
     def handle_collision(self, other, group):
-        pass
+        if group == 'skill:Mon_Monster':
+            game_world.remove_object(self)

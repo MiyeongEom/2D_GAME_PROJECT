@@ -47,7 +47,9 @@ class Block1:
 
     def handle_collision(self, other, group):
         if group == 'blocks_basic:main_hero':
+            pass
 
+        if group == 'skill:blocks_basic':
             pass
 
 
@@ -75,6 +77,9 @@ class Block2:
         if group == 'tree_node:main_hero':
             pass
 
+        if group == 'skill:tree_node':
+            pass
+
 
 #(750, 60), (750, 100), (750, 140), (750, 180), (750, 220)
 class Block3:
@@ -88,6 +93,10 @@ class Block3:
 
     def draw(self):
         self.image.draw(self.x, self.y, self.w, self.h)
+        self.image.draw(self.x, self.y + 40, self.w, self.h)
+        self.image.draw(self.x, self.y + 80, self.w, self.h)
+        self.image.draw(self.x, self.y + 120 , self.w, self.h)
+        self.image.draw(self.x, self.y + 160 , self.w, self.h)
         draw_rectangle(*self.get_bb())
 
 
@@ -95,10 +104,13 @@ class Block3:
         pass
 
     def get_bb(self):
-        return self.x - 21, self.y - 21, self.x + 21, self.y + 21
+        return self.x - 21, self.y - 21, self.x + 21, self.y + 180
 
     def handle_collision(self, other, group):
-        if group == 'block3:main_hero':
+        if group == 'stone:main_hero':
+            pass
+
+        if group == 'skill:stone':
             pass
 
 

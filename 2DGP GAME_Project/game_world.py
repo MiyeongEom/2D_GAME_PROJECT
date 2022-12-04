@@ -35,7 +35,6 @@ def clear():
 
 def add_collision_group(a, b, group):
     if group not in collision_group:
-        print('Add new group ', group)
         collision_group[group] = [    [],     [] ]
 
     if a: #a가 있으면
@@ -49,7 +48,6 @@ def add_collision_group(a, b, group):
             collision_group[group][1] += b
         else: #단일 오브젝트라면
             collision_group[group][1].append(b)
-
 
 def all_collision_pairs():
     #collison-group이라는 딕셔너리에서 각 리스트로부터 페어를 만들어서 보내준다
