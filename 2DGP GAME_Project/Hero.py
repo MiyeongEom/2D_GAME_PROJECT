@@ -414,7 +414,10 @@ class Hero:
                 self.skill_reset = 3
 
     def fire_skill(self):
-        skille = SkillE(self.x + 35, self.y, self.face_dir * 2)
+        if self.face_dir == 1 or self.dir == 1:
+            skille = SkillE(self.x + 35, self.y, self.face_dir * 2)
+        else:
+            skille = SkillE(self.x - 35, self.y, self.face_dir * 2)
         game_world.add_object(skille, 1)
         game_world.add_collision_group(skille, None, 'skill:adj_monster')
         game_world.add_collision_group(skille, None, 'skill:King_monster')
