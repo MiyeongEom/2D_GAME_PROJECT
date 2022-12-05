@@ -23,15 +23,18 @@ class SkillE:
     def update(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
         self.x += self.velocity
-        if self.x < server.main_hero.x - 150 or self.x > server.main_hero.x + 150:
+        if self.x - server.first_stage.window_left < server.main_hero.x - server.first_stage.window_left - 150 \
+                or self.x - server.first_stage.window_left > server.main_hero.x - server.first_stage.window_left + 150:
             game_world.remove_object(self)
 
     def draw(self):
-        self.image.clip_draw(int(self.frame) % 8 * 100, 0, 100, 100, self.x , self.y, 40, 40)
-        draw_rectangle(*self.get_bb())
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
+        self.image.clip_draw(int(self.frame) % 8 * 100, 0, 100, 100, sx , sy, 40, 40)
+        #draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 15, self.y - 20, self.x + 15, self.y + 15
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
+        return sx - 15, sy - 20, sx + 15, sy + 15
 
     def handle_collision(self, other, group):
         if group == 'skill:blocks_basic':

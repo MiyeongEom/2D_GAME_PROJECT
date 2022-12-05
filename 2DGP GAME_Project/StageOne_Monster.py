@@ -3,6 +3,7 @@ import game_world
 from BehaviorTree import BehaviorTree, SelectorNode, SequenceNode, LeafNode
 from pico2d import *
 import math
+import random
 import server
 
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30
@@ -62,36 +63,38 @@ class Frog:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
                 # draw_rectangle(self.x, self.y - 56, self.x + 85, self.y + 46)
                 # la > rb, ra < lb, ta < bb, ba > tb a가 몬스터 b스킬
-                if server.adj_monster.get_bb()[0] < server.main_hero.x + 85 < server.adj_monster.get_bb()[2] :
-                    game_world.remove_object(server.adj_monster)
+                if self.get_bb()[0] < server.main_hero.x + 65 < self.get_bb()[2] :
+                    game_world.remove_object(self)
             else:
-                if server.adj_monster.get_bb()[0] < server.main_hero.x - 85 < server.adj_monster.get_bb()[2] :
-                    game_world.remove_object(server.adj_monster)
+                if self.get_bb()[0] < server.main_hero.x - 65 < self.get_bb()[2] :
+                    game_world.remove_object(self)
 
         if server.main_hero.skill == 2:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
                 # draw_rectangle(self.x - 40, self.y - 37, self.x + 75, self.y + 8)
-                if server.adj_monster.get_bb()[0] < server.main_hero.x + 55 < server.adj_monster.get_bb()[2]:
-                    game_world.remove_object(server.adj_monster)
+                if self.get_bb()[0] < server.main_hero.x + 55 < self.get_bb()[2]:
+                    game_world.remove_object(self)
             else:
-                if server.adj_monster.get_bb()[0] < server.main_hero.x - 55 < server.adj_monster.get_bb()[2]:
-                    game_world.remove_object(server.adj_monster)
+                if self.get_bb()[0] < server.main_hero.x - 55 < self.get_bb()[2]:
+                    game_world.remove_object(self)
         pass
 
 
     def draw(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
-            self.image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 120,
+            self.image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', sx, sy, 120,
                                                 120)
         elif self.face_dir == -1:  # 왼쪽
-            self.image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 110,110)
+            self.image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, sx, sy, 110,110)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.face_dir == 1:
-            return self.x - 40, self.y - 40, self.x + 38, self.y + 30
+            return sx - 40, sy - 40, sx + 38, sy + 30
         elif self.face_dir == -1:
-            return self.x - 40, self.y - 40, self.x + 38, self.y + 30
+            return sx - 40, sy - 40, sx + 38, sy + 30
 
     def handle_collision(self, other, group):
         if group == 'skill:adj_monster':
@@ -131,33 +134,35 @@ class King_Frog:
 
         if server.main_hero.skill == 1:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if server.King_monster.get_bb()[0] < server.main_hero.x + 85 < server.King_monster.get_bb()[2] :
-                    game_world.remove_object(server.King_monster)
+                if self.get_bb()[0] < server.main_hero.x + 65 < self.get_bb()[2] :
+                    game_world.remove_object(self)
             else:
-                if server.King_monster.get_bb()[0] < server.main_hero.x - 85 < server.King_monster.get_bb()[2] :
-                    game_world.remove_object(server.King_monster)
+                if self.get_bb()[0] < server.main_hero.x - 65 < self.get_bb()[2] :
+                    game_world.remove_object(self)
 
         if server.main_hero.skill == 2:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if server.King_monster.get_bb()[0] < server.main_hero.x + 55 < server.King_monster.get_bb()[2] :
-                    game_world.remove_object(server.King_monster)
+                if self.get_bb()[0] < server.main_hero.x + 55 < self.get_bb()[2] :
+                    game_world.remove_object(self)
             else:
-                if server.King_monster.get_bb()[0] < server.main_hero.x - 55 < server.King_monster.get_bb()[2] :
-                    game_world.remove_object(server.King_monster)
+                if self.get_bb()[0] < server.main_hero.x - 55 < self.get_bb()[2] :
+                    game_world.remove_object(self)
 
         pass
 
 
     def draw(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
-            self.image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 120,
+            self.image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 120,
                                                 120)
         else:  # 왼쪽
-            self.image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 120,120)
+            self.image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 120,120)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 45, self.y - 45, self.x + 35, self.y + 50
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
+        return sx - 45, sy - 45, sx + 35, sy + 50
 
     def handle_collision(self, other, group):
         if group == 'skill:King_monster':
@@ -196,35 +201,37 @@ class Monster:
 
         if server.main_hero.skill == 1:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if server.Mon_Monster.get_bb()[0] < server.main_hero.x + 85 < server.Mon_Monster.get_bb()[2]:
-                    game_world.remove_object(server.Mon_Monster)
+                if self.get_bb()[0] < server.main_hero.x + 65 < self.get_bb()[2]:
+                    game_world.remove_object(self)
 
             else:
-                if server.Mon_Monster.get_bb()[0] < server.main_hero.x - 85 < server.Mon_Monster.get_bb()[2] :
-                    game_world.remove_object(server.Mon_Monster)
+                if self.get_bb()[0] < server.main_hero.x - 65 < self.get_bb()[2] :
+                    game_world.remove_object(self)
 
         if server.main_hero.skill == 2:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if server.Mon_Monster.get_bb()[0] < server.main_hero.x + 55 < server.Mon_Monster.get_bb()[2]:
-                    game_world.remove_object(server.Mon_Monster)
+                if self.get_bb()[0] < server.main_hero.x + 55 < self.get_bb()[2]:
+                    game_world.remove_object(self)
 
             else:
-                if server.Mon_Monster.get_bb()[0] < server.main_hero.x - 55 < server.Mon_Monster.get_bb()[2] :
-                    game_world.remove_object(server.Mon_Monster)
+                if self.get_bb()[0] < server.main_hero.x - 55 < self.get_bb()[2] :
+                    game_world.remove_object(self)
 
         pass
 
 
     def draw(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
-            self.image.clip_composite_draw(int(self.frame) % 4 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 120,
+            self.image.clip_composite_draw(int(self.frame) % 4 * 100, 0, 100, 100, 0, 'h', sx, sy, 120,
                                                 120)
         else:  # 왼쪽
-            self.image.clip_draw(int(self.frame) % 4 * 100, 0, 100, 100, self.x, self.y, 120,120)
+            self.image.clip_draw(int(self.frame) % 4 * 100, 0, 100, 100, sx, sy, 120,120)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 35, self.y - 47, self.x + 39, self.y + 50
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
+        return sx - 35, sy - 47, sx + 39, sy + 50
 
     def handle_collision(self, other, group):
         if group == 'skill:Mon_Monster':

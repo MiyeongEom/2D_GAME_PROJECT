@@ -28,24 +28,83 @@ def enter():
     running = True
     server.first_stage = StageOne()
     server.main_hero = Hero()
-    server.adj_monster = Frog(570, 80)
-    server.King_monster = King_Frog(90, 305)
-    server.Mon_Monster = Monster(1150, 370)
+
+    #소개굴
+    frog1 = Frog(570, 70)
+    frog2 = Frog(100, 465)
+    frog3 = Frog(1962, 70)
+    frog4 = Frog(2050, 70)
+    frog5 = Frog(2178, 70)
+    frog6 = Frog(2356, 70)
+    server.adj_monster = [frog1, frog2, frog3, frog4, frog5, frog6]
+
+    #대개굴
+    king_frog1= King_Frog(90, 315)
+    king_frog2 = King_Frog(860, 90)
+    king_frog3 = King_Frog(1900, 490)
+
+    server.King_monster = [king_frog1, king_frog2, king_frog3]
+
+    #큰몹
+    monster1 =  Monster(1150, 470)
+    monster2 = Monster(2220, 300)
+
+    server.Mon_Monster = [monster1, monster2]
 
     #기본 블럭
-    block01 = Block1(130, 240)
+    block01 = Block1(130, 250)
     block02 = Block1(310, 140)
-    block03 = Block1(850, 230)
-    block04 = Block1(1170, 300)
+    block03 = Block1(850, 300)
+    block04 = Block1(1170, 400)
+    block05 = Block1(1022, 180)
+    block06 = Block1(1912, 420)
+    block07 = Block1(1965, 160)
+    block08 = Block1(2200, 230)
 
-    server.blocks_basic = [block01, block02, block03, block04]
+    server.blocks_basic = [block01, block02, block03, block04, block05, block06, block07, block08]
 
     #나무큐브
     block20 = Block2(350, 330)
     block21 = Block2(480, 330)
     block22 = Block2(610, 300)
 
-    server.tree_cube = [block20, block21, block22]
+    block23 = Block2(140, 400)
+    block24 = Block2(85, 400)
+    block25 = Block2(30, 400)
+
+    block26 = Block2(690, 450)
+    block27 = Block2(1347, 330)
+
+    block19 = Block2(1800, 90)
+    block18 = Block2(2390, 250)
+    block17 = Block2(2290, 400)
+
+    #계단
+    block28 = Block2(1470, 70)
+
+    block29 = Block2(1525, 70)
+    block33 = Block2(1525, 124)
+
+    block30 = Block2(1580, 70)
+    block34 = Block2(1580, 124)
+    block35 = Block2(1580, 178)
+
+    block31 = Block2(1635, 70)
+    block36 = Block2(1635, 124)
+    block37 = Block2(1635, 178)
+    block38 = Block2(1635, 232)
+
+    block32 = Block2(1690, 70)
+    block39 = Block2(1690, 124)
+    block40 = Block2(1690, 178)
+    block41 = Block2(1690, 232)
+    block42 = Block2(1690, 286)
+
+
+
+    server.tree_cube = [block17, block18 ,block19, block20, block21, block22, block23, block24, block25, block26, block27\
+                        ,block28, block29, block30, block31, block32, block33, block34, block35\
+                        ,block36, block37, block38, block39, block40, block41 ,block42]
 
     #벽돌
     block40 = Block3(690, 60)
@@ -53,18 +112,27 @@ def enter():
 
 
     spirit01 = Spirit(370, 220)
-    spirit02 = Spirit(610, 382)
+    spirit02 = Spirit(776, 90)
+    spirit03 = Spirit(690, 530)
+    spirit04 = Spirit(1230, 480)
+    spirit05 = Spirit(30, 480)
+    spirit06 = Spirit(1347, 410)
+    spirit07 = Spirit(1985, 500)
+    spirit08 = Spirit(1892, 90)
+    spirit09 = Spirit(2390, 330)
+    spirit10 = Spirit(2297, 480)
 
-    server.spirit = [spirit01, spirit02]
+
+    server.spirit = [spirit01, spirit02, spirit03, spirit04, spirit05, spirit06, spirit07, spirit08, spirit09, spirit10]
 
 ########################################
 
     game_world.add_object(server.first_stage, 0)
     game_world.add_object(server.main_hero, 2)
 
-    game_world.add_object(server.adj_monster, 2)
-    game_world.add_object(server.King_monster, 2)
-    game_world.add_object(server.Mon_Monster, 2)
+    game_world.add_objects(server.adj_monster, 2)
+    game_world.add_objects(server.King_monster, 2)
+    game_world.add_objects(server.Mon_Monster, 2)
 
     game_world.add_objects(server.spirit, 1)
     game_world.add_objects(server.blocks_basic, 1)

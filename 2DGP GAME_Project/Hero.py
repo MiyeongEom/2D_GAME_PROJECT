@@ -2,6 +2,7 @@ from pico2d import*
 import game_framework
 from Skill import SkillE
 import game_world
+import server
 
 RD, LD, RU, LU, DD = range(5)
 event_name =  ['RD', 'LD', 'RU', 'LU', 'DD']
@@ -13,17 +14,13 @@ key_event_table = {
     (SDL_KEYUP, SDLK_LEFT) : LU,
 
     (SDL_KEYDOWN, SDLK_DOWN) : DD, #구르기
-
-    #(SDL_KEYDOWN, SDLK_q) : DQ,
-    #(SDL_KEYDOWN, SDLK_w) : DW,
-    #(SDL_KEYDOWN, SDLK_e) : DE
 }
 
 TIME_PER_ACTION = 0.3
 ACTION_PER_TIME = 0.9 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
 VELOCITY = 150
-MASS = 0.004
+MASS = 0.005
 
 PIXEL_PER_METER = (10.0 / 0.4)
 RUN_SPEED_KMPH = 1.0  # Km / Hour
@@ -81,6 +78,7 @@ class IDLE:
         self.attacke()
         self.defend()
 
+        self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
         if self.isJump == 0 :
             self.y += round(-2)
             if self.y < self.jump_high :
@@ -90,10 +88,11 @@ class IDLE:
 
     @staticmethod
     def draw(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.face_dir == 1: #오른쪽을 바라보고 있는 상태
-            self.Idle_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 150, 150)
+            self.Idle_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 150, 150)
         else: #왼쪽
-            self.Idle_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
+            self.Idle_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 150, 150)
         pass
 
 class RUN:
@@ -114,7 +113,9 @@ class RUN:
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
-        self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
+
+        self.x = clamp(40, self.x, server.first_stage.w - 1 - 40)
+        self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
 
         self.jump()
         self.attackq()
@@ -123,10 +124,11 @@ class RUN:
         self.defend()
 
     def draw(self):  #int(boy.frame)
+         sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
          if self.dir == 1:
-            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, self.x, self.y, 150, 150)
+            self.RUN_image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, sx, sy, 150, 150)
          elif self.dir == -1:
-            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 150, 150)
+            self.RUN_image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', sx, sy, 150, 150)
 
 class Roll:
     def enter(self, event):
@@ -142,13 +144,16 @@ class Roll:
     def do(self):
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
-        self.x = clamp(40, self.x, 1260) #x값을 0과 800사이로 제한
+
+        self.x = clamp(40, self.x, server.first_stage.w - 1 - 40)
+        self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
 
     def draw(self):  #int(boy.frame)
+         sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
          if self.dir == 1:
-            self.Roll_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
+            self.Roll_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
          elif self.dir == -1:
-            self.Roll_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
+            self.Roll_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 190, 190)
 
 
 next_state = {
@@ -168,8 +173,9 @@ class Hero:
         self.q.insert(0, event)
 
     def __init__(self):
-        self.x = 40
-        self.y = 90
+        # 원래 40 90
+        self.x = 2180
+        self.y = 379
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.aniframe = 0
@@ -205,6 +211,7 @@ class Hero:
         self.DEffect_image = load_image('Resource/Effect/D_Effect.png')
 
         self.font = load_font('Font/Galmuri11-Bold.ttf', 30)
+        self.font2 = load_font('Font/Galmuri7.ttf', 20)
 
         self.q = []
         self.cur_state = IDLE
@@ -212,6 +219,8 @@ class Hero:
 
     def update(self):
         self.cur_state.do(self)
+        self.x = clamp(40, self.x, server.first_stage.w - 1 - 40)
+        self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
         if self.q : #q에 뭔가 들어있다면,
             event = self.q.pop() # 이벤트를 가져오고
             self.cur_state.exit(self, event) #현재 상태를 나가고, self에 대한 정보는 전달해주고 ^^
@@ -238,100 +247,103 @@ class Hero:
             self.aniframe = (self.frame + FRAMES_PER_ANIMATION3 * ANIMATION3_PER_TIME * game_framework.frame_time) % 8
 
     def draw(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.skill == 1:
             if self.dir == 1:
-                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.QEffect_image.clip_composite_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, 0, 'h', self.x + 25, self.y, 150,150)
-                draw_rectangle(self.x, self.y - 56, self.x + 85, self.y + 46)
+                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.QEffect_image.clip_composite_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, 0, 'h', sx + 25, sy, 150,150)
+                draw_rectangle(sx, sy - 56, sx + 65, sy + 46)
 
             elif self.dir == -1:
-                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,190)
-                self.QEffect_image.clip_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, self.x - 25, self.y, 150, 150)
-                draw_rectangle(self.x - 85, self.y - 56, self.x, self.y + 46)
+                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 190,190)
+                self.QEffect_image.clip_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, sx - 25, sy, 150, 150)
+                draw_rectangle(sx - 65, sy - 56, sx, sy + 46)
 
             elif self.face_dir == 1:
-                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.QEffect_image.clip_composite_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, 0, 'h', self.x + 25, self.y , 150,150)
-                draw_rectangle(self.x, self.y - 56, self.x + 85, self.y + 46)
+                self.AttackQ_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.QEffect_image.clip_composite_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, 0, 'h', sx, sy , 150,150)
+                draw_rectangle(sx, sy - 56, sx + 65, sy + 46)
 
             elif self.face_dir == -1:
-                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190, 190)
-                self.QEffect_image.clip_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, self.x - 25, self.y, 150, 150)
-                draw_rectangle(self.x - 85, self.y - 56, self.x, self.y + 46)
+                self.AttackQ_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 190, 190)
+                self.QEffect_image.clip_draw(int(self.aniframe) % 5 * 100, 0, 100, 100, sx - 25, sy, 150, 150)
+                draw_rectangle(sx - 65, sy - 56, sx, sy + 46)
 
         elif self.skill == 2:
             if self.dir == 1:
-                self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.WEffect_image.clip_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, self.x + 5, self.y+30, 150, 150)
-                draw_rectangle(self.x - 40, self.y - 37, self.x + 55, self.y + 8)
+                self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.WEffect_image.clip_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, sx + 5, sy+30, 150, 150)
+                draw_rectangle(sx - 40, sy - 37, sx + 55, sy + 8)
 
             elif self.dir == -1:
-                self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
+                self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 190,
                                                     190)
-                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, 0, 'h', self.x -5, self.y+30, 150, 150)
-                draw_rectangle(self.x - 55, self.y - 37, self.x + 40, self.y + 8)
+                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, 0, 'h', sx -5, sy+30, 150, 150)
+                draw_rectangle(sx - 55, sy - 37, sx + 40, sy + 8)
 
             elif self.face_dir == 1:
-                self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.WEffect_image.clip_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, self.x + 5, self.y + 30, 160, 160)
-                draw_rectangle(self.x - 40, self.y - 37, self.x + 55, self.y + 8)
+                self.AttackW_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.WEffect_image.clip_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, sx + 5, sy + 30, 160, 160)
+                draw_rectangle(sx - 40, sy - 37, sx + 55, sy + 8)
 
             elif self.face_dir == -1:
-                self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y, 190,
+                self.AttackW_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h',sx, sy, 190,
                                                     190)
-                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, 0, 'h', self.x -5,
-                                                       self.y+30, 150, 150)
-                draw_rectangle(self.x - 55, self.y - 37, self.x + 40, self.y + 8)
+                self.WEffect_image.clip_composite_draw(int(self.aniframe) % 9 * 100, 0, 100, 100, 0, 'h', sx -5,
+                                                       sy+30, 150, 150)
+                draw_rectangle(sx - 55, sy - 37, sx + 40, sy + 8)
 
         elif self.skill == 3:
             if self.dir == 1:
-                self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y , 200,
+                self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy , 200,
                                              200)
 
             elif self.dir == -1:
-                self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy,
                                                        190,190)
-                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y , 200,
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy , 200,
                                               200)
 
             elif self.face_dir == 1:
-                self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y, 200,
+                self.AttackE_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy, 200,
                                                200)
 
             elif self.face_dir == -1:
-                self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                self.AttackE_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy,
                                                        190,190)
-                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y , 200,
+                self.EEffect02_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy , 200,
                                                200)
 
         elif self.skill == 4:
             if self.dir == 1:
-                self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-15, 100,
+                self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy-15, 100,
                                                100)
             elif self.dir == -1:
-                self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', sx, sy,
                                                        190, 190)
-                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-15, 100,
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy-15, 100,
                                              100)
 
             elif self.face_dir == 1:
-                self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, self.x, self.y, 190, 190)
-                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-15, 100,
+                self.Defend_image.clip_draw(int(self.frame) % 12 * 100, 0, 100, 100, sx, sy, 190, 190)
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy-15, 100,
                                                100)
 
             elif self.face_dir == -1:
-                self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', self.x, self.y,
+                self.Defend_image.clip_composite_draw(int(self.frame) % 12 * 100, 0, 100, 100, 0, 'h', sx, sy,
                                                        190,190)
-                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, self.x, self.y-15, 100,
+                self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy-15, 100,
                                              100)
 
         elif self.skill == 0:
             self.cur_state.draw(self)
+
         draw_rectangle(*self.get_bb())
         self.font.draw(30, 560, 'score : %d' % (self.score), (255, 255, 255))
+        self.font2.draw(sx - 40, sy + 40, '(%d, %d)' % (self.x, self.y), (255, 255, 0))
 
     def jump(self):
         jump_value = 0.00349923324584
@@ -441,24 +453,25 @@ class Hero:
                 self.skill_time = 0
 
     def get_bb(self):
+        sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
         if self.cur_state == RUN:
             if self.dir == 1:
-                return self.x - 27, self.y - 46, self.x + 28, self.y + 40
+                return sx - 27, sy - 46, sx + 28, sy + 40
             elif self.dir == -1:
-                return self.x - 28, self.y - 46, self.x + 27, self.y + 40
+                return sx - 28, sy - 46, sx + 27, sy + 40
 
         elif self.cur_state == Roll:
             if self.dir == 1:
-                return self.x - 27, self.y - 46, self.x + 28, self.y + 10
+                return sx - 27, sy - 46, sx + 28, sy + 10
             elif self.dir == -1:
-                return self.x - 25, self.y - 46, self.x + 27, self.y + 10
+                return sx - 25, sy - 46, sx + 27, sy + 10
 
         else:
             if self.face_dir == 1:
-                return self.x - 27, self.y - 48, self.x + 28, self.y + 40
+                return sx - 27, sy - 48, sx + 28, sy + 40
             elif self.face_dir == -1:
-                return self.x - 28, self.y - 48, self.x + 27, self.y + 40
-            return self.x - 28, self.y - 50, self.x + 28, self.y + 40
+                return sx - 28, sy - 48, sx + 27, sy + 40
+            return sx - 28, sy - 50, sx + 28, sy + 40
 
     def handle_collision(self, other, group): #other.get_bb()[1]
         if group == 'blocks_basic:main_hero':
@@ -472,10 +485,12 @@ class Hero:
                 self.fall()
 
             elif self.get_bb()[1] < other.get_bb()[3]:
-                self.y += 2
-                self.v = VELOCITY
-                self.m = MASS
-                self.isJump = 0
+                if other.get_bb()[0] < self.get_bb()[0] + 50 and self.get_bb()[2] - 50 < other.get_bb()[2]:
+                    self.y += 2
+                    self.v = VELOCITY
+                    self.m = MASS
+                    self.isJump = 0
+
 
         if group == 'tree_node:main_hero':
             if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
@@ -488,10 +503,11 @@ class Hero:
                 self.fall()
 
             elif self.get_bb()[1] < other.get_bb()[3]:
-                self.y += 2
-                self.v = VELOCITY
-                self.m = MASS
-                self.isJump = 0
+                if other.get_bb()[0] < self.get_bb()[0] + 50 and self.get_bb()[2] - 50 < other.get_bb()[2]:
+                     self.y += 2
+                     self.v = VELOCITY
+                     self.m = MASS
+                     self.isJump = 0
 
         if group == 'stone:main_hero':
             if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
@@ -504,10 +520,11 @@ class Hero:
                 self.fall()
 
             elif self.get_bb()[1] < other.get_bb()[3]:
-                self.y += 2
-                self.v = VELOCITY
-                self.m = MASS
-                self.isJump = 0
+                if other.get_bb()[0] < self.get_bb()[0] + 50 and self.get_bb()[2] - 50 < other.get_bb()[2]:
+                    self.y += 2
+                    self.v = VELOCITY
+                    self.m = MASS
+                    self.isJump = 0
 
         if group == 'spirit:main_hero':
             self.score += 1
