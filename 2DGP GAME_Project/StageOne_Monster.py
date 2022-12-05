@@ -11,7 +11,6 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 5
 
-
 #개굴
 Frog_SPEED_KMPH = 1.0  # Km / Hour
 Frog_SPEED_MPM = (Frog_SPEED_KMPH * 1000.0 / 60.0)
@@ -38,6 +37,7 @@ class Frog:
             Frog.image = load_image('Resource/MON/Frog/Walk.png')
         self.x, self.y = x, y
         self.ax, self.ay = x, y
+        self.hp = 120
         self.frame = 0
         self.wandering = False
 
@@ -63,20 +63,24 @@ class Frog:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
                 # draw_rectangle(self.x, self.y - 56, self.x + 85, self.y + 46)
                 # la > rb, ra < lb, ta < bb, ba > tb a가 몬스터 b스킬
-                if self.get_bb()[0] < server.main_hero.x + 65 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x + 65 - server.first_stage.window_left < self.get_bb()[2] :
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom < self.get_bb()[3] :
+                        game_world.remove_object(self)
             else:
-                if self.get_bb()[0] < server.main_hero.x - 65 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x - 65 - server.first_stage.window_left < self.get_bb()[2] :
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
+                        game_world.remove_object(self)
 
-        if server.main_hero.skill == 2:
+        elif server.main_hero.skill == 2:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
                 # draw_rectangle(self.x - 40, self.y - 37, self.x + 75, self.y + 8)
-                if self.get_bb()[0] < server.main_hero.x + 55 < self.get_bb()[2]:
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x + 55 - server.first_stage.window_left < self.get_bb()[2]:
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom < self.get_bb()[3]:
+                        game_world.remove_object(self)
             else:
-                if self.get_bb()[0] < server.main_hero.x - 55 < self.get_bb()[2]:
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x - 55 - server.first_stage.window_left< self.get_bb()[2]:
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
+                        game_world.remove_object(self)
         pass
 
 
@@ -113,6 +117,7 @@ class King_Frog:
         self.x, self.y = x, y
         self.ax, self.ay = x, y
         self.frame = 0
+        self.hp = 250
 
         self.dir = 0.1
         self.face_dir = 1
@@ -134,19 +139,24 @@ class King_Frog:
 
         if server.main_hero.skill == 1:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if self.get_bb()[0] < server.main_hero.x + 65 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x + 65 - server.first_stage.window_left < self.get_bb()[2] :
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom < self.get_bb()[3] :
+                        game_world.remove_object(self)
             else:
-                if self.get_bb()[0] < server.main_hero.x - 65 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x - 65 - server.first_stage.window_left < self.get_bb()[2] :
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
+                        game_world.remove_object(self)
 
-        if server.main_hero.skill == 2:
+        elif server.main_hero.skill == 2:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if self.get_bb()[0] < server.main_hero.x + 55 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                # draw_rectangle(self.x - 40, self.y - 37, self.x + 75, self.y + 8)
+                if self.get_bb()[0] < server.main_hero.x + 55 - server.first_stage.window_left < self.get_bb()[2]:
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom < self.get_bb()[3]:
+                        game_world.remove_object(self)
             else:
-                if self.get_bb()[0] < server.main_hero.x - 55 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x - 55 - server.first_stage.window_left< self.get_bb()[2]:
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
+                        game_world.remove_object(self)
 
         pass
 
@@ -179,6 +189,7 @@ class Monster:
         self.x, self.y = x, y
         self.ax, self.ay = x, y
         self.frame = 0
+        self.hp = 320
 
         self.dir = 0.05
         self.face_dir = -1
@@ -201,21 +212,24 @@ class Monster:
 
         if server.main_hero.skill == 1:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if self.get_bb()[0] < server.main_hero.x + 65 < self.get_bb()[2]:
-                    game_world.remove_object(self)
-
+                if self.get_bb()[0] < server.main_hero.x + 65 - server.first_stage.window_left < self.get_bb()[2] :
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom < self.get_bb()[3] :
+                        game_world.remove_object(self)
             else:
-                if self.get_bb()[0] < server.main_hero.x - 65 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x - 65 - server.first_stage.window_left < self.get_bb()[2] :
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
+                        game_world.remove_object(self)
 
-        if server.main_hero.skill == 2:
+        elif server.main_hero.skill == 2:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
-                if self.get_bb()[0] < server.main_hero.x + 55 < self.get_bb()[2]:
-                    game_world.remove_object(self)
-
+                # draw_rectangle(self.x - 40, self.y - 37, self.x + 75, self.y + 8)
+                if self.get_bb()[0] < server.main_hero.x + 55 - server.first_stage.window_left < self.get_bb()[2]:
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom < self.get_bb()[3]:
+                        game_world.remove_object(self)
             else:
-                if self.get_bb()[0] < server.main_hero.x - 55 < self.get_bb()[2] :
-                    game_world.remove_object(self)
+                if self.get_bb()[0] < server.main_hero.x - 55 - server.first_stage.window_left< self.get_bb()[2]:
+                    if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
+                        game_world.remove_object(self)
 
         pass
 

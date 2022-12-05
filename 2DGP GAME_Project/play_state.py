@@ -40,7 +40,7 @@ def enter():
 
     #대개굴
     king_frog1= King_Frog(90, 315)
-    king_frog2 = King_Frog(860, 90)
+    king_frog2 = King_Frog(860, 80)
     king_frog3 = King_Frog(1900, 490)
 
     server.King_monster = [king_frog1, king_frog2, king_frog3]

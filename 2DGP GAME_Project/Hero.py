@@ -174,8 +174,8 @@ class Hero:
 
     def __init__(self):
         # 원래 40 90
-        self.x = 2180
-        self.y = 379
+        self.x = 40
+        self.y = 90
         self.v, self.m = VELOCITY, MASS
         self.frame = 0
         self.aniframe = 0
@@ -342,7 +342,7 @@ class Hero:
             self.cur_state.draw(self)
 
         draw_rectangle(*self.get_bb())
-        self.font.draw(30, 560, 'score : %d' % (self.score), (255, 255, 255))
+        self.font.draw(30, 560, 'score : %d / 10' % (self.score), (255, 255, 255))
         self.font2.draw(sx - 40, sy + 40, '(%d, %d)' % (self.x, self.y), (255, 255, 0))
 
     def jump(self):
