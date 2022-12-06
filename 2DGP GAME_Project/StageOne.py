@@ -3,6 +3,7 @@ import random
 import server
 import game_framework
 import game_world
+import os
 
 GAME_X = 1300
 GAME_Y = 600
@@ -12,6 +13,7 @@ TIME_PER_ACTION = 0.7
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 11
 
+
 class StageOne:
     def __init__(self):
         self.stage1 = load_image('Resource/StageOne/stage1_background.png')
@@ -20,6 +22,7 @@ class StageOne:
 
         self.font = load_font('Font/Galmuri11-Bold.ttf', 20)
         self.font2 = load_font('Font/Galmuri11-Bold.ttf', 25)
+        self.font3 = load_font('Font/Galmuri11-Bold.ttf', 28)
 
         self.canvas_width = GAME_X
         self.canvas_height = GAME_Y
@@ -35,6 +38,7 @@ class StageOne:
 
         self.bar.draw(650, 600, 1300, 100)
         self.distance.draw(230, 595, 200, 100)
+        self.font3.draw(615, 575, '60.0', (255, 255, 255))
         self.font2.draw(35, 625, 'n o w', (255, 255, 200))
         self.font.draw(565, 625, 'S T A G E - 0 1', (255, 255, 200))
 
@@ -52,15 +56,15 @@ class HeroPosition:
         self.image.draw(self.x, self.y, 14, 14)
 
     def update(self):
-        if server.main_hero.x == 40:
+        if 40 <= server.main_hero.x < 587:
             self.x = 133
-        if server.main_hero.x == 1215:
+        if 1215 <= server.main_hero.x < 1842:
             self.x = 230
-        if server.main_hero.x == 2470:
+        if 2470 <= server.main_hero.x:
             self.x = 333
-        if server.main_hero.x == 587:
+        if 587 <= server.main_hero.x < 1215:
             self.x = 183
-        if server.main_hero.x == 1842:
+        if 1842 <= server.main_hero.x < 2470:
             self.x = 283
 
 class HpLife:
@@ -83,6 +87,8 @@ class HpBar:
         self.image5 = load_image('Resource/UI/Bar5.png')
         self.image6 = load_image('Resource/UI/Bar6.png')
         self.image7 = load_image('Resource/UI/Bar7.png')
+        self.hp_sound = load_wav('hp_sound.mp3')
+        self.hp_sound.set_volume(40)
         self.x, self.y = 190, 567
         self.bar = 1
 
@@ -124,8 +130,6 @@ class HpBar:
         elif 180 <= server.main_hero.hp :
             self.bar = 1
 
-
-        pass
 
 # (130, 240), (410, 140), (900, 300)
 class Block1:

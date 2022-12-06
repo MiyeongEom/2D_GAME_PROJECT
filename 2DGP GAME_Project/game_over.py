@@ -2,13 +2,15 @@ import game_framework
 from pico2d import *
 import play_state
 import title_state
-import server
+import game_world
+
 image = None
 
+
 def enter():
-    global image
+    global image, font, font3
     image = load_image('Resource/Logo&Title/game_over.png')
-    pass
+
 
 def handle_events():
     events = get_events()
@@ -31,6 +33,7 @@ def exit():
     global image
     del image
 
+
 def draw():
     clear_canvas()
     image.draw(650, 325)
@@ -44,3 +47,16 @@ def pause():
 
 def resume():
     pass
+
+
+class Music:
+    def __init__(self):
+        self.bgm = load_music('title.mp3')
+        self.bgm.set_volume(40)
+        self.bgm.repeat_play()
+
+    def draw(self):
+        pass
+
+    def update(self):
+        pass

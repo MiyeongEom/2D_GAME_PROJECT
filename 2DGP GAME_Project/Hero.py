@@ -6,6 +6,8 @@ import server
 import game_over
 import time
 
+time_limit = 60.0
+
 RD, LD, RU, LU, DD = range(5)
 event_name =  ['RD', 'LD', 'RU', 'LU', 'DD']
 
@@ -170,7 +172,11 @@ RUN_SPEED_MPM = RUN_SPEED_KPH * 1000.0 / 60
 RUN_SPEED_MPS = RUN_SPEED_MPM / 60.0
 RUN_SPEED_PPS = RUN_SPEED_MPS * PIXEL_PER_METER
 
+current_time = time.time()
+print(current_time + 60)
+
 class Hero:
+    current_time = time.time()
     def add_event(self, event):
         self.q.insert(0, event)
 
@@ -222,9 +228,16 @@ class Hero:
         self.font2 = load_font('Font/Galmuri7.ttf', 20)
         self.font3 = load_font('Font/Galmuri11-Bold.ttf', 100)
 
+        #######################################################
+
+        self.dead_sound = load_wav('Dead.mp3')
+        self.dead_sound.set_volume(40)
+
         self.q = []
         self.cur_state = IDLE
         self.cur_state.enter(self, None) # 맨처음에는 이벤트가 없었기에
+
+        self.game_time = 0
 
     def update(self):
         self.cur_state.do(self)
@@ -379,6 +392,7 @@ class Hero:
             self.cur_state.draw(self)
 
         if self.dead == 1:
+            self.dead_sound.play()
             self.font3.draw(330, 325, 'GAME OVER', (255, 0, 0))
             if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
                 self.Dead_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 150, 150)
@@ -457,7 +471,6 @@ class Hero:
         if self.skill == 2:
             self.attacking = True
             self.skill_time += 1
-
             if self.skill_time == 140:
                 self.attacking = False
                 self.skill = 0

@@ -1,13 +1,18 @@
 import game_framework
 from pico2d import *
+
+import game_world
 import play_state
 
 image = None
+music = None
 
 def enter():
-    global image
+    global image, music
     image = load_image('Resource/Logo&Title/title.png')
-    pass
+    music = load_music('title.mp3')
+    music.set_volume(53)
+    music.repeat_play()
 
 def handle_events():
     events = get_events()
@@ -22,7 +27,7 @@ def handle_events():
     pass
 
 def exit():
-    global image
+    global image, music
     del image
     pass
 
@@ -39,3 +44,6 @@ def pause():
 
 def resume():
     pass
+
+
+

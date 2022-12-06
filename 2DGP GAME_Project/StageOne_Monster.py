@@ -52,6 +52,8 @@ class Frog:
         self.speed = 0
         self.timer = 0
 
+        self.dead_sound = load_wav('Monster_dead.mp3')
+        self.dead_sound.set_volume(40)
 
     def update(self):
         if self.speed == 0:
@@ -92,6 +94,7 @@ class Frog:
                 self.x += 0.3
 
         if self.hp <= 0:
+            self.dead_sound.play()
             self.dead = 1
             self.timer += 1
             self.speed = 0
@@ -231,6 +234,9 @@ class King_Frog:
         self.Idle_image = load_image('Resource/MON/King_Frog/King_Idle.png')
         self.Attack_image = load_image('Resource/MON/King_Frog/King_Attack.png')
         self.Death_image = load_image('Resource/MON/King_Frog/King_Death.png')
+
+        self.dead_sound = load_wav('Monster_dead.mp3')
+        self.dead_sound.set_volume(40)
         self.x, self.y = x, y
         self.ax, self.ay = x, y
         self.frame = 0
@@ -286,6 +292,7 @@ class King_Frog:
                 self.x += 0.3
 
         if self.hp <= 0:
+            self.dead_sound.play()
             self.dead = 1
             self.timer += 1
             self.speed = 0
@@ -419,6 +426,8 @@ class Monster:
         if Monster.image == None:
             Monster.image = load_image('Resource/MON/Monster/Monster_Idle.png')
         self.Walk_image = load_image('Resource/MON/Monster/Monster_Walk.png')
+        self.dead_sound = load_wav('Monster_dead.mp3')
+        self.dead_sound.set_volume(40)
         self.x, self.y = x, y
         self.ax, self.ay = x, y
         self.frame = 0
@@ -472,6 +481,7 @@ class Monster:
                 self.x += 0.1
 
         if self.hp <= 0:
+            self.dead_sound.play()
             self.dead = 1
             self.timer += 1
             self.speed = 0
