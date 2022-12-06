@@ -63,6 +63,70 @@ class HeroPosition:
         if server.main_hero.x == 1842:
             self.x = 283
 
+class HpLife:
+    def __init__(self):
+        self.image = load_image('Resource/UI/Life.png')
+        self.x, self.y = 40, 565
+
+    def draw(self):
+        self.image.draw(self.x, self.y, 30, 30)
+
+    def update(self):
+        pass
+
+class HpBar:
+    def __init__(self):
+        self.image1 = load_image('Resource/UI/Bar1.png')
+        self.image2 = load_image('Resource/UI/Bar2.png')
+        self.image3 = load_image('Resource/UI/Bar3.png')
+        self.image4 = load_image('Resource/UI/Bar4.png')
+        self.image5 = load_image('Resource/UI/Bar5.png')
+        self.image6 = load_image('Resource/UI/Bar6.png')
+        self.image7 = load_image('Resource/UI/Bar7.png')
+        self.x, self.y = 190, 567
+        self.bar = 1
+
+    def draw(self):
+        if self.bar == 1:
+            self.image1.draw(self.x, self.y, 247, 32)
+
+        elif self.bar == 2:
+            self.image2.draw(self.x, self.y, 247, 32)
+
+        elif self.bar == 3:
+            self.image3.draw(self.x, self.y, 247, 32)
+
+        elif self.bar == 4:
+            self.image4.draw(self.x, self.y, 247, 32)
+
+        elif self.bar == 5:
+            self.image5.draw(self.x, self.y, 247, 32)
+
+        elif self.bar == 6:
+            self.image6.draw(self.x, self.y, 247, 32)
+
+        elif self.bar == 7:
+            self.image7.draw(self.x, self.y, 247, 32)
+
+    def update(self):
+        if 0 <= server.main_hero.hp < 30:
+            self.bar = 7
+        elif 30 <= server.main_hero.hp < 60:
+            self.bar = 6
+        elif 60 <= server.main_hero.hp < 90:
+            self.bar = 5
+        elif 90 <= server.main_hero.hp < 120:
+            self.bar = 4
+        elif 120 <= server.main_hero.hp < 150:
+            self.bar = 3
+        elif 150 <= server.main_hero.hp < 180:
+            self.bar = 2
+        elif 180 <= server.main_hero.hp :
+            self.bar = 1
+
+
+        pass
+
 # (130, 240), (410, 140), (900, 300)
 class Block1:
     image = None

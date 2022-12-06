@@ -31,6 +31,9 @@ def enter():
     server.first_stage = StageOne()
     server.main_hero = Hero()
     hero_position = HeroPosition()
+    hp_life = HpLife()
+    hp_bar = HpBar()
+
     #소개굴
     frog1 = Frog(570, 70)
     frog2 = Frog(40, 465)
@@ -132,6 +135,8 @@ def enter():
     game_world.add_object(server.first_stage, 0)
     game_world.add_object(hero_position, 0)
     game_world.add_object(server.main_hero, 2)
+    game_world.add_object(hp_life, 0)
+    game_world.add_object(hp_bar, 0)
 
     game_world.add_objects(server.adj_monster, 2)
     game_world.add_objects(server.King_monster, 2)

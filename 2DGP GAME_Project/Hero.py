@@ -4,6 +4,7 @@ from Skill import SkillE
 import game_world
 import server
 import game_over
+import time
 
 RD, LD, RU, LU, DD = range(5)
 event_name =  ['RD', 'LD', 'RU', 'LU', 'DD']
@@ -184,7 +185,7 @@ class Hero:
         self.collision = 0
         self.score = 0
 
-        self.hp = 200
+        self.hp = 210
         self.dead = 0
         self.timer = 0
         self.hit = 0
