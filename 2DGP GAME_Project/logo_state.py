@@ -30,7 +30,7 @@ def update():
 def draw():
     # fill here
     clear_canvas()
-    image.draw(650, 300)
+    image.draw(600, 325)
     update_canvas()
     pass
 

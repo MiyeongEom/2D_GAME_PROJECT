@@ -52,9 +52,16 @@ class HeroPosition:
         self.image.draw(self.x, self.y, 14, 14)
 
     def update(self):
-        for n in range(1,21):
-            if int(server.main_hero.x) == 6.5 * n:
-                self.x += 1
+        if server.main_hero.x == 40:
+            self.x = 133
+        if server.main_hero.x == 1215:
+            self.x = 230
+        if server.main_hero.x == 2470:
+            self.x = 333
+        if server.main_hero.x == 587:
+            self.x = 183
+        if server.main_hero.x == 1842:
+            self.x = 283
 
 # (130, 240), (410, 140), (900, 300)
 class Block1:
@@ -67,6 +74,7 @@ class Block1:
         self.y = y
         self.w  = 194.4
         self.h = 48
+
 
     def draw(self):
         # 200 240 194.4 48

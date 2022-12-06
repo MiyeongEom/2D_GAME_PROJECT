@@ -3,7 +3,7 @@ import json
 import os
 
 from pico2d import*
-
+import game_over
 import StageOne
 import game_framework
 import game_world
@@ -27,13 +27,12 @@ def handle_events():
 
 def enter():
     global running, hero_position
-
     running = True
     server.first_stage = StageOne()
     server.main_hero = Hero()
     hero_position = HeroPosition()
     #소개굴
-    frog1 = Frog(580, 70)
+    frog1 = Frog(570, 70)
     frog2 = Frog(40, 465)
     frog3 = Frog(1962, 70)
     frog4 = Frog(2050, 70)
@@ -166,11 +165,19 @@ def enter():
 
     # 주인공과 몬스터 충돌
     game_world.add_collision_group(server.main_hero, server.adj_monster, 'main_hero:adj_monster')
+    game_world.add_collision_group(server.main_hero, server.King_monster, 'main_hero:King_monster')
+    game_world.add_collision_group(server.main_hero, server.Mon_Monster, 'main_hero:Mon_Monster')
 
     # 블럭과 몬스터 충돌
     game_world.add_collision_group(server.blocks_basic, server.adj_monster, 'blocks_basic:adj_monster')
     game_world.add_collision_group(server.tree_cube, server.adj_monster, 'tree_node:adj_monster')
     game_world.add_collision_group(server.stone, server.adj_monster, 'stone:adj_monster')
+    game_world.add_collision_group(server.blocks_basic, server.King_monster, 'blocks_basic:King_monster')
+    game_world.add_collision_group(server.tree_cube, server.King_monster, 'tree_cube:King_monster')
+    game_world.add_collision_group(server.stone, server.King_monster, 'stone:King_monster')
+    game_world.add_collision_group(server.blocks_basic, server.Mon_Monster, 'blocks_basic:Mon_Monster')
+    game_world.add_collision_group(server.tree_cube, server.Mon_Monster, 'tree_cube:Mon_Monster')
+    game_world.add_collision_group(server.stone, server.Mon_Monster, 'stone:Mon_Monster')
 
 # 게임 종료 - 객체 소멸
 def exit():

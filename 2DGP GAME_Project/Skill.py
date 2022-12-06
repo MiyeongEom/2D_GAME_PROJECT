@@ -45,3 +45,12 @@ class SkillE:
 
         if group == 'skill:stone':
             game_world.remove_object(self)
+
+        if group == 'skill:adj_monster':
+            game_world.remove_object(self)
+
+        if group == 'skill:King_monster':
+            game_world.remove_object(self)
+
+        if group == 'skill:Mon_Monster':
+            game_world.remove_object(self)

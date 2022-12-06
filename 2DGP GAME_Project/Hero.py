@@ -3,6 +3,7 @@ import game_framework
 from Skill import SkillE
 import game_world
 import server
+import game_over
 
 RD, LD, RU, LU, DD = range(5)
 event_name =  ['RD', 'LD', 'RU', 'LU', 'DD']
@@ -116,7 +117,6 @@ class RUN:
 
         self.x = clamp(40, self.x, 2470)
         self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
-        print(server.first_stage.w - 1 - 40)
 
         self.jump()
         self.attackq()
@@ -184,6 +184,11 @@ class Hero:
         self.collision = 0
         self.score = 0
 
+        self.hp = 200
+        self.dead = 0
+        self.timer = 0
+        self.hit = 0
+
         self.isJump = 0
         self.jump_high = 90
         self.jump_value = 0
@@ -202,6 +207,7 @@ class Hero:
         self.AttackW_image = load_image('Resource/MC/MC_AttackW.png')
         self.AttackE_image = load_image('Resource/MC/MC_FUN.png')
         self.Defend_image = load_image('Resource/MC/MC_Defend.png')
+        self.Dead_image = load_image('Resource/MC/MC_Death.png')
 
         #################################################################
 
@@ -213,6 +219,7 @@ class Hero:
 
         self.font = load_font('Font/Galmuri11-Bold.ttf', 28)
         self.font2 = load_font('Font/Galmuri7.ttf', 20)
+        self.font3 = load_font('Font/Galmuri11-Bold.ttf', 100)
 
         self.q = []
         self.cur_state = IDLE
@@ -231,21 +238,49 @@ class Hero:
                 print(f'ERROR: State {self.cur_state.__name__} Event {event_name[event]}')
             self.cur_state.enter(self, event)
 
-        if self.skill == 1:
-            self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
-            self.aniframe = (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 5
+        #print(self.hp)
 
-        elif self.skill == 2:
-            self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
-            self.aniframe = (self.frame + FRAMES_PER_ANIMATION * ANIMATION_PER_TIME * game_framework.frame_time) % 9
+        if self.hit == 1:
+            self.hp -= 0.2
+            self.hit = 0
 
-        elif self.skill == 3:
-            self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
-            self.aniframe = (self.frame + FRAMES_PER_ANIMATION2 * ANIMATION2_PER_TIME * game_framework.frame_time) % 8
+        if self.hit == 2:
+            self.hp -= 0.4
+            self.hit = 0
 
-        elif self.skill == 4:
-            self.frame =  (self.frame + FRAMES_PER_DEFEND * DEFEND_PER_TIME * 2) % 12
-            self.aniframe = (self.frame + FRAMES_PER_ANIMATION3 * ANIMATION3_PER_TIME * game_framework.frame_time) % 8
+        if self.hit == 3:
+            self.hp -= 0.6
+            self.hit = 0
+
+        if self.hp > 0 :
+            self.dead = 0
+
+        if self.hp <= 0:
+            self.dead = 1
+            self.timer += 1
+            if self.timer == 75:
+                delay(2)
+                game_framework.change_state(game_over)
+
+        if self.dead == 1:
+            self.frame = (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+
+        else :
+            if self.skill == 1:
+                self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+                self.aniframe = (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 5
+
+            elif self.skill == 2:
+                self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+                self.aniframe = (self.frame + FRAMES_PER_ANIMATION * ANIMATION_PER_TIME * game_framework.frame_time) % 9
+
+            elif self.skill == 3:
+                self.frame =  (self.frame + FRAMES_PER_ATTACK * ATTACK_PER_TIME * game_framework.frame_time) % 6
+                self.aniframe = (self.frame + FRAMES_PER_ANIMATION2 * ANIMATION2_PER_TIME * game_framework.frame_time) % 8
+
+            elif self.skill == 4:
+                self.frame =  (self.frame + FRAMES_PER_DEFEND * DEFEND_PER_TIME * 2) % 12
+                self.aniframe = (self.frame + FRAMES_PER_ANIMATION3 * ANIMATION3_PER_TIME * game_framework.frame_time) % 8
 
     def draw(self):
         sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
@@ -339,8 +374,15 @@ class Hero:
                 self.DEffect_image.clip_draw(int(self.aniframe) % 8 * 100, 0, 100, 100, sx, sy-15, 100,
                                              100)
 
-        elif self.skill == 0:
+        elif self.skill == 0 and self.dead == 0:
             self.cur_state.draw(self)
+
+        if self.dead == 1:
+            self.font3.draw(330, 325, 'GAME OVER', (255, 0, 0))
+            if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
+                self.Dead_image.clip_draw(int(self.frame) % 6 * 100, 0, 100, 100, sx, sy, 150, 150)
+            else:  # 왼쪽
+                self.Dead_image.clip_composite_draw(int(self.frame) % 6 * 100, 0, 100, 100, 0, 'h', sx, sy, 150, 150)
 
         draw_rectangle(*self.get_bb())
         self.font.draw(980, 625, 'score : ', (255, 255, 200))
@@ -493,7 +535,6 @@ class Hero:
                     self.m = MASS
                     self.isJump = 0
 
-
         if group == 'tree_node:main_hero':
             if self.get_bb()[1] < other.get_bb()[3] or self.get_bb()[3] < other.get_bb()[1]: #좌우
                 if self.get_bb()[2] > other.get_bb()[0]:
@@ -530,9 +571,20 @@ class Hero:
 
         if group == 'spirit:main_hero':
             self.score += 1
-            pass
+            self.hp += 5
 
         if group == 'main_hero:adj_monster':
-            pass
+            self.hit = 1
+
+        if group == 'main_hero:King_monster':
+            self.hit = 2
+
+        if group == 'main_hero:Mon_monster':
+            self.hit = 3
+
+        else:
+            self.hp += 0
+
+
 
 
