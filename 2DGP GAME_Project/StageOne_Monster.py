@@ -35,29 +35,28 @@ class Frog:
     def __init__(self, x, y):
         if Frog.image == None:
             Frog.image = load_image('Resource/MON/Frog/Walk.png')
+        self.Idle_image = load_image('Resource/MON/Frog/Idle.png')
         self.x, self.y = x, y
         self.ax, self.ay = x, y
         self.hp = 120
         self.frame = 0
-        self.wandering = False
+        self.build_behavior_tree()
 
-        self.dir = 0.2
         self.face_dir = 1
 
         self.speed = 0
         self.timer = 2
 
     def update(self):
-        self.speed = Frog_SPEED_PPS
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+        if self.speed == 0:
+            self.frame = (self.frame + 4 * ACTION_PER_TIME * game_framework.frame_time) % 4
+        else:
+            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
+        self.x += self.speed * math.cos(self.face_dir)
+        self.y += round(-2)
 
-        self.x += self.dir
-        if self.x >= self.ax + 60 :  #초기값보다 이동값이 더 클 때
-            self.dir -= 0.2
-            self.face_dir = -1
-        elif self.x <= self.ax - 60:
-            self.dir += 0.2
-            self.face_dir = 1
+        if self.y <= 80:
+            self.y = 80
 
         if server.main_hero.skill == 1:
             if server.main_hero.face_dir == 1 or server.main_hero.dir == 1:
@@ -81,23 +80,31 @@ class Frog:
                 if self.get_bb()[0] < server.main_hero.x - 55 - server.first_stage.window_left< self.get_bb()[2]:
                     if self.get_bb()[1] < server.main_hero.y - 20 - server.first_stage.window_bottom< self.get_bb()[3]:
                         game_world.remove_object(self)
-        pass
+
+        self.bt.run()
 
 
     def draw(self):
         sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
-        if self.face_dir == 1:  # 오른쪽을 바라보고 있는 상태
-            self.image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', sx, sy, 120,
-                                                120)
-        elif self.face_dir == -1:  # 왼쪽
-            self.image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, sx, sy, 110,110)
+        if math.cos(self.face_dir) < 0:  # 오른쪽을 바라보고 있는 상태
+            if self.speed == 0:
+                self.Idle_image.clip_draw(int(self.frame) % 4 * 100, 0, 100, 100, sx, sy, 120,120)
+            else:
+                self.image.clip_draw(int(self.frame) % 5 * 100, 0, 100, 100, sx, sy, 120, 120)
+        else:
+            if self.speed == 0:
+                self.Idle_image.clip_composite_draw(int(self.frame) % 4 * 100, 0, 100, 100, 0, 'h', sx, sy, 120,
+                                                    120)
+            else:
+                self.image.clip_composite_draw(int(self.frame) % 5 * 100, 0, 100, 100, 0, 'h', sx, sy, 120,
+                                               120)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
         sx, sy = self.x - server.first_stage.window_left, self.y - server.first_stage.window_bottom
-        if self.face_dir == 1:
+        if math.cos(self.face_dir) < 0:
             return sx - 40, sy - 40, sx + 38, sy + 30
-        elif self.face_dir == -1:
+        else:
             return sx - 40, sy - 40, sx + 38, sy + 30
 
     def handle_collision(self, other, group):
@@ -106,6 +113,38 @@ class Frog:
 
         if group == 'main_hero:adj_monster':
             pass
+
+        if group == 'blocks_basic:adj_monster':
+            self.y += round(2)
+
+        if group== 'tree_node:adj_monster':
+            self.y += round(2)
+
+        if group== 'stone:adj_monster':
+            self.y += round(2)
+
+    def find_player(self):
+        # fill here
+        distance = (server.main_hero.x - self.x) ** 2 + (server.main_hero.y - self.y) ** 2
+        if distance <= (PIXEL_PER_METER * 5) ** 2:
+            return BehaviorTree.SUCCESS
+        else:
+            self.speed = 0
+            return BehaviorTree.FAIL
+
+    def move_to_player(self):
+        self.speed = 0.5
+        self.face_dir = math.atan2(server.main_hero.y - self.y, server.main_hero.x - self.x)
+        return BehaviorTree.SUCCESS  # 일단 소년 쪽으로 움직이기만 해도 성공으로 간주
+
+    def build_behavior_tree(self):
+        # fill here
+        find_player_node = LeafNode("Find Player", self.find_player)
+        move_to_player_node = LeafNode("Move to Player", self.move_to_player)
+        chase_node = SequenceNode("Chase")
+        chase_node.add_children(find_player_node, move_to_player_node)
+
+        self.bt = BehaviorTree(chase_node)
 
 
 class King_Frog:

@@ -114,8 +114,9 @@ class RUN:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        self.x = clamp(40, self.x, server.first_stage.w - 1 - 40)
+        self.x = clamp(40, self.x, 2470)
         self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
+        print(server.first_stage.w - 1 - 40)
 
         self.jump()
         self.attackq()
@@ -145,7 +146,7 @@ class Roll:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 6
         self.x += self.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        self.x = clamp(40, self.x, server.first_stage.w - 1 - 40)
+        self.x = clamp(40, self.x, 2470)
         self.y = clamp(90, self.y, server.first_stage.h - 1 - 45)
 
     def draw(self):  #int(boy.frame)
@@ -210,7 +211,7 @@ class Hero:
 
         self.DEffect_image = load_image('Resource/Effect/D_Effect.png')
 
-        self.font = load_font('Font/Galmuri11-Bold.ttf', 30)
+        self.font = load_font('Font/Galmuri11-Bold.ttf', 28)
         self.font2 = load_font('Font/Galmuri7.ttf', 20)
 
         self.q = []
@@ -342,7 +343,8 @@ class Hero:
             self.cur_state.draw(self)
 
         draw_rectangle(*self.get_bb())
-        self.font.draw(30, 560, 'score : %d / 10' % (self.score), (255, 255, 255))
+        self.font.draw(980, 625, 'score : ', (255, 255, 200))
+        self.font.draw(1100, 625, '%d / 10' % (self.score), (255, 255, 255))
         self.font2.draw(sx - 40, sy + 40, '(%d, %d)' % (self.x, self.y), (255, 255, 0))
 
     def jump(self):

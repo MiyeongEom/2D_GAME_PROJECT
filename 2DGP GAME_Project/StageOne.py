@@ -15,6 +15,12 @@ FRAMES_PER_ACTION = 11
 class StageOne:
     def __init__(self):
         self.stage1 = load_image('Resource/StageOne/stage1_background.png')
+        self.bar = load_image('Resource/UI/Basic.png')
+        self.distance = load_image('Resource/UI/Distance.png')
+
+        self.font = load_font('Font/Galmuri11-Bold.ttf', 20)
+        self.font2 = load_font('Font/Galmuri11-Bold.ttf', 25)
+
         self.canvas_width = GAME_X
         self.canvas_height = GAME_Y
         self.w = self.stage1.w
@@ -27,11 +33,28 @@ class StageOne:
             0, 0
         )
 
+        self.bar.draw(650, 600, 1300, 100)
+        self.distance.draw(230, 595, 200, 100)
+        self.font2.draw(35, 625, 'n o w', (255, 255, 200))
+        self.font.draw(565, 625, 'S T A G E - 0 1', (255, 255, 200))
+
     def update(self):
         self.window_left = clamp(0, int(server.main_hero.x) - self.canvas_width // 2, self.w - self.canvas_width - 1)
         self.window_bottom = clamp(0, int(server.main_hero.y) - self.canvas_height // 2, self.h - self.canvas_height - 1)
         pass
 
+class HeroPosition:
+    def __init__(self):
+        self.image = load_image('Resource/UI/Position.png')
+        self.x, self.y = 133, 628
+
+    def draw(self):
+        self.image.draw(self.x, self.y, 14, 14)
+
+    def update(self):
+        for n in range(1,21):
+            if int(server.main_hero.x) == 6.5 * n:
+                self.x += 1
 
 # (130, 240), (410, 140), (900, 300)
 class Block1:
